@@ -37,6 +37,7 @@ These are the possible requests to web application (add param ?Namespace={Desire
 | Widgets                     | POST | {Dashboard:"DashboardName"} | JSON      | All widgets in a dashboard     |
 | FilterValues/:cube         | GET  |                             | JSON      | All filters for DeepSee Cube   |
 | FilterValues/:cube/:filter | GET  |                             | JSON      | All possible values for filter |
+| DrillInfo                  | POST | { cubeName: "HoleFoods", queryKey: "ru512140103", sortDir: "ASC", sortColumn: 0, row: 1 } | JSON      | Returns drilldown information |
 | Test                        | GET  |                             | plaintext | Test info                      |
 
 Example

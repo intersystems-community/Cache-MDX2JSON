@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2014.1.1 (Build 702U)" ts="2014-11-13 01:39:57">
 <Class name="MDX2JSON.REST">
 <Description><![CDATA[
 Class for REST-like web api for MDX2JSON transformation (and XML/A).<br>
 Example: send HTTP POST request to web application with Dispatch class <b>MDX2JSON.REST</b>
 with body: { "MDX":"QUERY" }, where QUERY is a correct MDX statement, ex:  <br> 
 {<br>
-		"MDX": "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY [Outlet].[H1].[Region].Members ON 1 FROM [HoleFoods]"<br>
+        "MDX": "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY [Outlet].[H1].[Region].Members ON 1 FROM [HoleFoods]"<br>
 } <br>
 You can send requests to:<br> <ul>
-	<li>webapplication/Test - to get test info, %request, %response and %session</li> 
-	<li>webapplication/MDX - to get result in JSON format for MDX query</li>
-	<li>webapplication/MDXDrillthrough - to get resulting listing in JSON format for MDX Drillthrough query</li>
-	<li>webapplication/MDX2XMLA - to get result in XML/A format for MDX query</li>
+    <li>webapplication/Test - to get test info, %request, %response and %session</li> 
+    <li>webapplication/MDX - to get result in JSON format for MDX query</li>
+    <li>webapplication/MDXDrillthrough - to get resulting listing in JSON format for MDX Drillthrough query</li>
+    <li>webapplication/MDX2XMLA - to get result in XML/A format for MDX query</li>
 </ul>
 
 Dashboard related requests are:
  <ul>
- 	<li>webapplication/Dashboards - get all dashboards in a namespace (GET request).</li>
-	<li>webapplication/Widgets - get all dashboard widgets (POST request with {Dashboard:"DashboardName"} body).</li>
+    <li>webapplication/Dashboards - get all dashboards in a namespace (GET request).</li>
+    <li>webapplication/Widgets - get all dashboard widgets (POST request with {Dashboard:"DashboardName"} body).</li>
 </ul>
 To get information about possible Cube's filters and filters' values:<br><ul>
-		<li>webapplication/FilterValues/:cube - to get all filters for DeepSee Cube in JSON format.</li> 
-		<li>webapplication/FilterValues/:cube/:filter - to get all values for Filter for DeepSee Cube in JSON format.</li></ul> 
+        <li>webapplication/FilterValues/:cube - to get all filters for DeepSee Cube in JSON format.</li> 
+        <li>webapplication/FilterValues/:cube/:filter - to get all values for Filter for DeepSee Cube in JSON format.</li></ul> 
 Example: send HTTP GET request to web application with Dispatch class <b>MDX2JSON.REST</b> and URL:<br>
 /FilterValues/HoleFoods/[DateOfSale].[Actual].[MonthSold] -  to get information about possible values of [DateOfSale].[Actual].[MonthSold] in HoleFoods Cube.<br>
 You can add a param Namespace to request to execute MDX in desired namespace (MDX2JSON package must be mapped to that namespace):<br>
@@ -30,12 +30,13 @@ webapplication/MDX?Namespace=Samples
 ]]></Description>
 <IncludeCode>MDX2JSON.MDX2JSON</IncludeCode>
 <Super>%CSP.REST</Super>
+<TimeChanged>63504,5862.54237</TimeChanged>
 <TimeCreated>63165,65257.8179</TimeCreated>
 
 <XData name="UrlMap">
 <Data><![CDATA[
 <Routes>
-	<!-- Send objects in this format: {"MDX":"QUERY"} HTTP method: POST	-->
+    <!-- Send objects in this format: {"MDX":"QUERY"} HTTP method: POST -->
    <Route Url="/MDX" Method="POST" Call="WriteJSONfromMDX"/>
    <Route Url="/MDX2JSONP" Method="POST" Call="WriteJSONPfromMDX"/>  
    <Route Url="/MDXDrillthrough" Method="POST" Call="WriteDrillthroughJSON"/>
@@ -53,6 +54,9 @@ webapplication/MDX?Namespace=Samples
    <!-- Valid but illicit, do not use-->
    <Route Url="/MDX/:query" Method="GET" Call="WriteJSONfromMDXURL"/>  
    <Route Url="/MDXfilters/:query" Method="GET" Call="WriteFiltersForMDX"/>
+   
+   <!-- Drilldown -->
+   <Route Url="/MDX/DrillInfo" Method="POST" Call="DrillInfo"/>
 
    <!-- Test method-->
    <Route Url="/Test" Method="GET" Call="Test"/>
@@ -66,13 +70,13 @@ Test method, outputs <b>%request</b>, <b>%response</b> and <b>%session</b> objec
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
-	&html<<h1>Status: OK!</h1><br>>
-	zw %request
-	&html<<br><br>>
-	zw %response
-	&html<<br><br>>
-	zw %session
-	return $$$OK
+    &html<<h1>Status: OK!</h1><br>>
+    zw %request
+    &html<<br><br>>
+    zw %response
+    &html<<br><br>>
+    zw %session
+    return $$$OK
 ]]></Implementation>
 </Method>
 
@@ -82,14 +86,14 @@ Wrapper for ##class(MDX2JSON.Utils).GetWidgetsList()<br>
 Converts incoming request object (JSON: {Dashboard:"Dashboard Full Name"} and calls abovementioned method.]]></Description>
 <ClassMethod>1</ClassMethod>
 <Implementation><![CDATA[
-	set dashboard = $$$get("w")
-	if (dashboard = "") {
-		set st = ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1)
-		return:$$$ISERR(st) st
-		set dashboard = obj.Dashboard
-		set dashboard = $ZCVT(dashboard,"I","UTF8")
-	}
-	return ##class(MDX2JSON.Utils).GetWidgetsList(dashboard)
+    set dashboard = $$$get("w")
+    if (dashboard = "") {
+        set st = ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1)
+        return:$$$ISERR(st) st
+        set dashboard = obj.Dashboard
+        set dashboard = $ZCVT(dashboard,"I","UTF8")
+    }
+    return ##class(MDX2JSON.Utils).GetWidgetsList(dashboard)
 ]]></Implementation>
 </Method>
 
@@ -99,14 +103,14 @@ Returns JSON array of (title, path) for all dashboards in namespace (accessible 
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
-	set sql = "SELECT title, fullName As path FROM %DeepSee_Dashboard.Definition WHERE folderName = 'Mobile'"
-	try {
-		
-		do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,sql)
-	} catch ex {
-		write $$$ZENJSSTR($System.Status.GetErrorText(ex.AsStatus()))
-	}
-	return $$$OK
+    set sql = "SELECT title, fullName As path FROM %DeepSee_Dashboard.Definition WHERE folderName = 'Mobile'"
+    try {
+        
+        do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,sql)
+    } catch ex {
+        write $$$ZENJSSTR($System.Status.GetErrorText(ex.AsStatus()))
+    }
+    return $$$OK
 ]]></Implementation>
 </Method>
 
@@ -117,14 +121,14 @@ Converts incoming request object and calls abovementioned method.]]></Descriptio
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
-	set st = $$$OK
-	set obj = ##class(%ZEN.proxyObject).%New()
-	set st = ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1)
-	return:$$$ISERR(st) st
-	set tMDX = obj.MDX
-	set tMDX = $ZCVT(tMDX,"I","UTF8")
-  	set st = ##class(MDX2JSON.Utils).WriteDrillthroughJSON(tMDX)
-  	return st
+    set st = $$$OK
+    set obj = ##class(%ZEN.proxyObject).%New()
+    set st = ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1)
+    return:$$$ISERR(st) st
+    set tMDX = obj.MDX
+    set tMDX = $ZCVT(tMDX,"I","UTF8")
+    set st = ##class(MDX2JSON.Utils).WriteDrillthroughJSON(tMDX)
+    return st
 ]]></Implementation>
 </Method>
 
@@ -185,6 +189,39 @@ Wrapper for ##class(MDX2JSON.Utils).WriteFilterValues(pCupe, pFilter)</Descripti
 ]]></Implementation>
 </Method>
 
+<Method name="DrillInfo">
+<Description>
+Wrapper for classMethod zGetItemSpec^%DeepSee.Component.pivotTable
+Retrieves drilldown information with given parameters.</Description>
+<ClassMethod>1</ClassMethod>
+<ProcedureBlock>0</ProcedureBlock>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+    set st = ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.req,1)
+    return:$$$ISERR(st) st
+    s proxyObject = ##class(MDX2JSON.DrillItemInfo).%New()
+    
+    try {
+        d ##class(%DeepSee.Component.pivotTable).GetItemSpec(
+            proxyObject,
+            req.cubeName,
+            req.queryKey,
+            req.sortDir,
+            req.sortColumn,
+            "row",
+            req.row
+        )
+        w "{""spec"":""" _ proxyObject.spec _ """,""text"":""" _ proxyObject.text
+          _ """,""childSpec"":""" _ proxyObject.childSpec _ """,""error"":""" _
+          proxyObject.error _ """}"
+    } catch (e) {
+        if proxyObject.error = "" s proxyObject.error = e.AsSystemError()
+        w "{""error"":""" _ proxyObject.error _ """}"
+    }
+    q $$$OK
+]]></Implementation>
+</Method>
+
 <Method name="WriteJSONfromMDX">
 <Description><![CDATA[
 Wrapper for ##class(MDX2JSON.Utils).WriteJSONPfromMDX(pMDX)<br>
@@ -193,21 +230,21 @@ Converts incoming request object and calls abovementioned method.]]></Descriptio
 <ProcedureBlock>0</ProcedureBlock>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
-	set callback=$get(%request.Data("callback",1),"")
-	if callback'="" w callback_"("
-	set st = ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1)
-	return:$$$ISERR(st) st
-	set tMDX = obj.MDX
-	set tMDX = $ZCVT(tMDX,"I","UTF8")
-	try {
-		set st = ##class(MDX2JSON.Utils).WriteJSONfromMDX(tMDX)
-	} catch ex {
-		//zw obj
-		set st=ex.AsStatus()
-	}
+    set callback=$get(%request.Data("callback",1),"")
+    if callback'="" w callback_"("
+    set st = ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1)
+    return:$$$ISERR(st) st
+    set tMDX = obj.MDX
+    set tMDX = $ZCVT(tMDX,"I","UTF8")
+    try {
+        set st = ##class(MDX2JSON.Utils).WriteJSONfromMDX(tMDX)
+    } catch ex {
+        //zw obj
+        set st=ex.AsStatus()
+    }
 
-  	if callback'="" w ")"
-  	quit st
+    if callback'="" w ")"
+    quit st
 ]]></Implementation>
 </Method>
 
@@ -218,12 +255,12 @@ Converts incoming request object and calls abovementioned method.]]></Descriptio
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
-	set st = $$$OK
-	set obj = ##class(%ZEN.proxyObject).%New()
-	set st = ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1)
-	quit:$$$ISERR(st) st
-  	set st = ##class(MDX2JSON.Utils).WriteJSONPfromMDX(obj.MDX)
-  	quit st
+    set st = $$$OK
+    set obj = ##class(%ZEN.proxyObject).%New()
+    set st = ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1)
+    quit:$$$ISERR(st) st
+    set st = ##class(MDX2JSON.Utils).WriteJSONPfromMDX(obj.MDX)
+    quit st
 ]]></Implementation>
 </Method>
 
@@ -234,12 +271,12 @@ Converts incoming request object and calls abovementioned method.]]></Descriptio
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
-	set st=$$$OK
-	set obj = ##class(%ZEN.proxyObject).%New()
-	set st = ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1)
-	quit:$$$ISERR(st) st
-  	set st = ##class(MDX2JSON.Utils).WriteXMLAfromMDX(obj.MDX)
-  	quit st
+    set st=$$$OK
+    set obj = ##class(%ZEN.proxyObject).%New()
+    set st = ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(%request.Content,,.obj,1)
+    quit:$$$ISERR(st) st
+    set st = ##class(MDX2JSON.Utils).WriteXMLAfromMDX(obj.MDX)
+    quit st
 ]]></Implementation>
 </Method>
 
@@ -252,9 +289,9 @@ Add param Namespace to a request to execute MDX in desired namespace.]]></Descri
 <FormalSpec>pUrl:%String,pMethod:%String</FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
-	do %response.SetHeader("Access-Control-Allow-Origin","*")
-	do %response.SetHeader("Access-Control-Allow-Headers","Authorization")
-	
+    do %response.SetHeader("Access-Control-Allow-Origin","*")
+    do %response.SetHeader("Access-Control-Allow-Headers","Authorization")
+    
     #dim tSC As %Status = $$$OK
     #dim e As %Exception.AbstractException
     
@@ -333,12 +370,12 @@ Add param Namespace to a request to execute MDX in desired namespace.]]></Descri
                 set Namespace = $get(%request.Data("Namespace",1))
                 
                 if ((Namespace'="") && ##class(%SYS.Namespace).Exists(Namespace)) {
-                	set oldNS = $Namespace
-                	zn Namespace
-                	Set tSC=$zobjclassmethod(tClass,tTarget,tArgs...)
-                	zn oldNS
+                    set oldNS = $Namespace
+                    zn Namespace
+                    Set tSC=$zobjclassmethod(tClass,tTarget,tArgs...)
+                    zn oldNS
                 } else {
-	                Set tSC=$zobjclassmethod(tClass,tTarget,tArgs...)                	
+                    Set tSC=$zobjclassmethod(tClass,tTarget,tArgs...)                   
                 }
                 If $$$ISERR(tSC) Do ..Http500(tSC)
                 
@@ -372,7 +409,7 @@ Issue an '500' error and give some indication as to what occurred.<br>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>pStatus:%Exception.AbstractException</FormalSpec>
 <Implementation><![CDATA[
-	// we are expecting status
+    // we are expecting status
     #; Set the response Http status
     Set %response.Status="500 Internal Server Error"
     

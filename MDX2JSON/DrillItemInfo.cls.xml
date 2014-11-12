@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2014.1.1 (Build 702U)" ts="2014-11-13 01:15:10">
+<Class name="MDX2JSON.DrillItemInfo">
+<Super>%RegisteredObject</Super>
+<TimeChanged>63504,3566.223313</TimeChanged>
+<TimeCreated>63504,3156.508706</TimeCreated>
+
+<Property name="spec">
+<Type>%String</Type>
+</Property>
+
+<Property name="text">
+<Type>%String</Type>
+</Property>
+
+<Property name="error">
+<Type>%String</Type>
+</Property>
+
+<Property name="childSpec">
+<Type>%String</Type>
+</Property>
+</Class>
+</Export>
