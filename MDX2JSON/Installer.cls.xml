@@ -64,7 +64,7 @@ todo add optional parameter WEBAPP to Alter web app name if it needs to have ano
 </Namespace>
 </If>
 
-<If Condition='(##class(%SYSTEM.Version).GetISCProduct()&gt;4)'>
+<If Condition='(##class(%SYSTEM.Version).GetISCProduct()&gt;3)'>
 <Log Text="Creating namespace %All" Level="0"/>
 <Namespace Name="%All" Create="yes" Code="IRISTEMP" Data="IRISTEMP" Ensemble="0">
 <Configuration>
