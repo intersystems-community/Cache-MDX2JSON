@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25">
+<Export generator="IRIS" version="26">
 <Class name="MDX2JSON.REST">
 <Description><![CDATA[
 Class for REST-like web api for MDX2JSON transformation (and XML/A).<br>
@@ -16,7 +16,7 @@ You can send requests to:<br> <ul>
 </ul>
 
 Dashboard related requests are:
- <ul>
+<ul>
 	<li>webapplication/Dashboards - get all dashboards in a namespace (GET request).</li>
 	<li>webapplication/Dashboards - get folder specific (recursively) dashboards in a namespace (POST request with {Folder:"FolderName"} body) ).</li>
 	<li>webapplication/Dashboard - get all dashboard widgets (POST request with {Dashboard:"DashboardName"} body) with filters as part of dashboard.</li>
@@ -47,64 +47,52 @@ Example: send HTTP GET request to web application with Dispatch class <b>MDX2JSO
 <Routes>
 	<!-- Send objects in this format: {"MDX":"QUERY"} HTTP method: POST -->
 
-   <Route Url="/MDX" Method="POST" Call="WriteJSONfromMDX"/>
-   <Route Url="/CancelQuery/:CubeKey/:QueryKey" Method="GET" Call="%DeepSee.ResultSet:%CancelQuery"/>
-   <Route Url="/MDX2JSONP" Method="POST" Call="WriteJSONPfromMDX" Body="MDX"/>
-   <Route Url="/MDXDrillthrough" Method="POST" Call="WriteDrillthroughJSON" Body="MDX"/>
-   <Route Url="/MDX2XMLA" Method="POST" Call="WriteXMLAfromMDX" Body="MDX"/>
 
-   <!-- Get info about availible filters and their values -->
-   <Route Url="/Filters" Method="POST" Call="WriteFiltersForDataSource"/>
+	<Route Url="/MDX" Method="POST" Call="WriteJSONfromMDX" Body="MDX"/>
+	<Route Url="/MDX2JSONP" Method="POST" Call="WriteJSONPfromMDX" Body="MDX"/>
+	<Route Url="/MDXDrillthrough" Method="POST" Call="WriteDrillthroughJSON" Body="MDX"/>
+	<Route Url="/MDX2XMLA" Method="POST" Call="WriteXMLAfromMDX" Body="MDX"/>
 
-   <!-- Get info about widgets-->
-   <Route Url="/Dashboards" Method="GET" Call="GetDashboardList"/>
-   <Route Url="/Dashboards" Method="POST" Call="GetDashboardList" Body="Folder"/>
-   <Route Url="/Dashboard" Method="POST" Call="GetDashboard" Body="Dashboard"/>
-   <Route Url="/Widgets" Method="POST" Call="GetWidgetsList" Body="Dashboard"/>
-   <Route Url="/Action/:Cube/:Action" Method="POST" Call="ExecuteAction"/>
+	<!-- Get info about availible filters and their values -->
+	<Route Url="/Filters" Method="POST" Call="WriteFiltersForDataSource"/>
 
-   <!-- Get info about system format and locale-->
-   <Route Url="/Format" Method="GET" Call="GetFormat"/>
+	<!-- Get info about widgets-->
+	<Route Url="/Dashboards" Method="GET" Call="GetDashboardList"/>
+	<Route Url="/Dashboards" Method="POST" Call="GetDashboardList" Body="Folder"/>
+	<Route Url="/Dashboard" Method="POST" Call="GetDashboard" Body="Dashboard"/>
+	<Route Url="/Widgets" Method="POST" Call="GetWidgetsList" Body="Dashboard"/>
+	<Route Url="/Action/:Cube/:Action" Method="POST" Call="ExecuteAction"/>
 
-   <!-- Get info about pivot-->
-   <Route Url="/DataSource" Method="POST" Call="GetDataSource" Body="DataSource"/>
+	<!-- Get info about system format and locale-->
+	<Route Url="/Format" Method="GET" Call="GetFormat"/>
 
-   <!-- Get info about pivot-->
-   <Route Url="/TermList" Method="POST" Call="GetTermList" Body="TermList"/>
-   
-   <!-- Get info about pivot variables-->
-   <Route Url="/PivotVariables/:Cube" Method="GET" Call="WritePivotVariablesForCube"/>
+	<!-- Get info about pivot-->
+	<Route Url="/DataSource" Method="POST" Call="GetDataSource" Body="DataSource"/>
 
-   <!-- Get info about user config-->
-   <Route Url="/Config" Method="POST" Call="SetConfig" Body="Application"/>
-   <Route Url="/Config/:Application" Method="GET" Call="GetConfig" />
+	<!-- Get info about pivot-->
+	<Route Url="/TermList" Method="POST" Call="GetTermList" Body="TermList"/>
 
-   <!-- Get info about user favorites-->
-   <Route Url="/Favorites" Method="GET" Call="GetFavorites"/>
-   <Route Url="/Favorites/:Item" Method="POST" Call="AddFavorite" />
-   <Route Url="/Favorites/:Item" Method="DELETE" Call="RemoveFavorite" />
+	<!-- Get info about user config-->
+	<Route Url="/Config" Method="POST" Call="SetConfig" Body="Application"/>
+	<Route Url="/Config/:Application" Method="GET" Call="GetConfig" />
 
-   <!-- Valid but illicit, do not use-->
-   <Route Url="/MDX/:query" Method="GET" Call="WriteJSONfromMDXURL"/>
-   <Route Url="/MDXfilters/:query" Method="GET" Call="WriteFiltersForMDX"/>
-   
-    <Route Url="/KPI" Method="POST" Call="WriteJSONfromKPI"/>
+	<!-- Get info about user favorites-->
+	<Route Url="/Favorites" Method="GET" Call="GetFavorites"/>
+	<Route Url="/Favorites/:Item" Method="POST" Call="AddFavorite" />
+	<Route Url="/Favorites/:Item" Method="DELETE" Call="RemoveFavorite" />
 
-   <!-- Test methods-->
-   <Route Url="/Test" Method="GET" Call="Test"/>
-   <Route Url="/Logout" Method="GET" Call="Logout"/>
-   
-   <!-- DSW specific methods-->
-   <Route Url="/Addons" Method="GET" Call="WriteAddons"/>
-   <Route Url="/Themes" Method="GET" Call="WriteThemes"/>
- </Routes>
+	<!-- Valid but illicit, do not use-->
+	<Route Url="/MDX/:query" Method="GET" Call="WriteJSONfromMDXURL"/>
+	<Route Url="/MDXfilters/:query" Method="GET" Call="WriteFiltersForMDX"/>
+
+	<!-- Test method-->
+	<Route Url="/Test" Method="GET" Call="Test"/>
+	<Route Url="/Logout" Method="GET" Call="Logout"/>
+	</Routes>
 ]]></Data>
 </XData>
 
 <Method name="Logout">
-<Description>
-End user session by force.
-Returns status.</Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
@@ -123,21 +111,18 @@ Test method, outputs <b>%request</b>, <b>%response</b> and <b>%session</b> objec
 <Implementation><![CDATA[
 	set obj = ##class(%ZEN.proxyObject).%New()
 	set obj.Status = "OK"
-	set obj.Embed = $g(^MDX2JSON.Embed, $g(^%MDX2JSON.Embed, ""))
 	set obj.User = $Username
-	set obj.Version = "2.3.5"
-	set obj.Parent = ##class(MDX2JSON.Tests).#LastCommit
-	set obj.ParentTS = ##class(MDX2JSON.Tests).#LastCommitTS
-	set obj.DefaultApp = $System.CSP.GetDefaultApp($Namespace)
-	set obj.Mappings = ..GetMappings()
+	set obj.Version = "2.2"
 	if $$$Debug {
 		set obj.Roles = $Roles
 		set obj.Namespace = $Namespace
-		set obj.Cache = $ZVersion
+		set obj.Mappings = ..GetMappings()
+		set obj.Cache = $zv
+		set obj.Access = ##class(MDX2JSON.Users).GetAccess($Username)
 		set obj.SessionId = %session.SessionId
 		set obj.Request = %request
 		set obj.Response = %response
-		//set obj.Session = %session
+		set obj.Session = %session
 	}
 	do obj.%ToJSON()
 	return $$$OK
@@ -190,9 +175,10 @@ Returns JSON array of (title, path) for all dashboards in namespace (accessible 
 	} else {
 		set folderName = ##class(MDX2JSON.Dashboard).#folderName
 	}
-
+	return:((folderName'="") && ('$IsObject(##class(%DeepSee.UserLibrary.Utils).%FindFolder(folderName)))) $$$ERROR($$$GeneralError,"Folder " _ folderName _ " does not exist")
+	set sql = ##class(MDX2JSON.Dashboard).GetDashboardListSQL(folderName)
 	try {
-		do ##class(MDX2JSON.DashboardRS).WriteJSON(folderName)
+		do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,sql)
 	} catch ex {
 		set st = ex.AsStatus()
 	}
@@ -220,8 +206,8 @@ Do not use.</Description>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	set MDX = $ZCONVERT($ZCONVERT(MDX ,"I","URL") ,"I","UTF8")
-  	set st = ##class(MDX2JSON.Utils).WriteJSONfromMDX(MDX)
-  	return st
+		set st = ##class(MDX2JSON.Utils).WriteJSONfromMDX(MDX)
+		return st
 ]]></Implementation>
 </Method>
 
@@ -249,19 +235,9 @@ Wrapper for ##class(MDX2JSON.Utils).WriteFiltersForDataSource(pDataSource, pValu
 	set DataSource = $$$R("DataSource")
 	set Values = $$$R("Values")
 	set Search = $$$R("Search")
-	
-	#dim RequestedFilters As %ListOfDataTypes = $$$R("RequestedFilters")
-	
-	#dim RelatedFiltersList As %ListOfObjects = $$$R("RelatedFilters")
-	if $IsObject(RelatedFiltersList) {
-		for i=1:1:RelatedFiltersList.Count() {
-			set RelatedFilter = RelatedFiltersList.GetAt(i)
-			set RelatedFilters(RelatedFilter.Filter) = RelatedFilter.Value
-		}
-	}
 
-   	set st = ##class(MDX2JSON.Utils).WriteFiltersForDataSource(DataSource, Values, Search, .RelatedFilters, RequestedFilters)
-  	return st
+	set st = ##class(MDX2JSON.Utils).WriteFiltersForDataSource(DataSource,Values,Search)
+	return st
 ]]></Implementation>
 </Method>
 
@@ -273,22 +249,12 @@ Converts incoming request object and calls abovementioned method.]]></Descriptio
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	try {
-		set mdx = $$$R("MDX")
-		set timeout = $$$R("Timeout")
-		set engine = $$$R("Engine")
-		set cubeKey = $$$R("CubeKey")
-		set queryKey = $$$R("QueryKey")
-		
-		if engine = "DeepSeeREST" {
+		if $$$R("Engine")="DeepSeeREST" {
 			// DeepSeeREST engine for MDX->JSON transformation. Only in 15.3+
-			set st = ##class(MDX2JSON.Utils).WriteJSONfromMDXNew(mdx)
+			set st = ##class(MDX2JSON.Utils).WriteJSONfromMDXNew($$$R("MDX"))
 		} else {
 			// Default MDX2JSON engine. 14.1+
-			if mdx'="" {
-				set st = ##class(MDX2JSON.Utils).WriteJSONfromMDX(mdx, timeout)
-			} else {
-				set st = ##class(MDX2JSON.Utils).WriteJSONfromQuery(cubeKey, queryKey, timeout)				
-			}
+			set st = ##class(MDX2JSON.Utils).WriteJSONfromMDX($$$R("MDX"))
 		}
 	} catch ex {
 		set st=ex.AsStatus()
@@ -354,8 +320,6 @@ Wrapper for ##class(MDX2JSON.Users).SetConfig()</Description>
 </Method>
 
 <Method name="GetFavorites">
-<Description>
-Get a list of favorites for a current user</Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
@@ -392,88 +356,6 @@ Get a list of favorites for a current user</Description>
 	set Cube = $ZCONVERT($ZCONVERT(Cube ,"I","URL") ,"I","UTF8")
 	set Action = $ZCONVERT($ZCONVERT(Action ,"I","URL") ,"I","UTF8")
 	return ##class(MDX2JSON.Utils).ExecuteAction(Cube,Action,%request.Content)
-]]></Implementation>
-</Method>
-
-<Method name="WritePivotVariablesForCube">
-<Description><![CDATA[
-Return a list of available pivot variables for <var>Cupe</var>.
-See correspontding method from DeepSee.REST.v1.InfoServer ]]></Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>Cube:%String</FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
-	set Cube = $ZCONVERT($ZCONVERT(Cube,"I","URL") ,"I","UTF8")
-	return ##class(MDX2JSON.Utils).WritePivotVariablesForCube(Cube)
-]]></Implementation>
-</Method>
-
-<Method name="WriteAddons">
-<Description>
-DSW specific method, returns available addons</Description>
-<ClassMethod>1</ClassMethod>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
-	#dim sc As %Status = $$$OK
-	
-	set app = "/dsw"
-	set path = $system.CSP.GetFileName(app _ "/")
-	set path = ##class(%File).NormalizeDirectory(path)
-	set path = ##class(%File).SubDirectoryName(path, "addons", $$$YES)	
-	set url = app _ "/addons/"
-	
-	#dim rs As %SQL.ClassQueryResultSet = ##class(%File).FileSetFunc(path, "*.js")
-	
-	set list = $$$NewDynDTList
-	while rs.%Next() {
-		$$$Insert(list, url _ rs.ItemName)
-	}
-	set sc = ##class(MDX2JSON.Utils).CreateAddons(list)
-	
-	if $$$ISOK(sc) {
-		$$$ListToJSON(list)
-	}
-    quit sc
-]]></Implementation>
-</Method>
-
-<Method name="WriteThemes">
-<Description>
-DSW specific method, returns available themes</Description>
-<ClassMethod>1</ClassMethod>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
-	#dim sc As %Status = $$$OK
-	
-	set app = "/dsw"
-	set path = $system.CSP.GetFileName(app _ "/")
-	set path = ##class(%File).NormalizeDirectory(path)
-	set path = ##class(%File).SubDirectoryName(path, "themes", $$$YES)	
-	set url = app _ "/themes/"
-	
-	#dim rs As %SQL.ClassQueryResultSet = ##class(%File).FileSetFunc(path, "*.css")
-	
-	set list = $$$NewDynDTList
-	while rs.%Next() {
-		$$$Insert(list, url _ rs.ItemName)
-	}
-	$$$ListToJSON(list)
-	
-    quit sc
-]]></Implementation>
-</Method>
-
-<Method name="WriteJSONfromKPI">
-<ClassMethod>1</ClassMethod>
-<CodeMode>objectgenerator</CodeMode>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
-	set class = "%DeepSee.REST.v1.DataServer"
-	set codeFind  = "Set tKpiSC"
-	set base = ##class(%Dictionary.MethodDefinition).IDKEYOpen(class, "WriteJSONfromKPI").Implementation.Read($$$MaxStringLength)
-	set base = $replace(base, codeFind, "Set:'$LF(tKpiPropList, ""%series"") tKpiPropList = tKpiPropList _ $LB(""%series"")" _ $c(13, 10, 9, 9) _ codeFind)
-	set base = $replace(base, "..", "##class(" _class _ ").")
-	do %code.Write(base)
 ]]></Implementation>
 </Method>
 </Class>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25">
+<Export generator="IRIS" version="26">
 <Class name="MDX2JSON.AbstractREST">
 <Description>
 All logic related to the proceccing of http requests.</Description>
@@ -9,6 +9,10 @@ All logic related to the proceccing of http requests.</Description>
 
 <Parameter name="UseSession">
 <Type>Integer</Type>
+<Default>1</Default>
+</Parameter>
+
+<Parameter name="HandleCorsRequest">
 <Default>1</Default>
 </Parameter>
 
@@ -33,6 +37,12 @@ Add param Namespace to a request to execute MDX in desired namespace.]]></Descri
 
 	Set %response.CharSet = "utf-8"
 	Set %response.ContentType="application/json"
+
+	If (%request.GetCgiEnv("REQUEST_METHOD") = "OPTIONS"){
+		//Do %response.WriteHTTPHeader()
+		Return $$$OK
+	}
+
 
 	Set %session.Language=$$MatchLanguage^%occMessages(%request.GetCgiEnv("HTTP_ACCEPT_LANGUAGE"),"%CSP","+s") // Localization support
 	Set %response.Language=%session.Language
@@ -167,6 +177,7 @@ Validates incoming request body against Body Route attribute.</Description>
 <Implementation><![CDATA[
 	#dim %request As %CSP.Request
 
+
 	return:(pMethod'="POST") $$$OK
 	return:(pBody="") $$$OK
 	return:'$d(%request.Content.%data(pBody)) $$$ERROR($$$PropertyRequired,pBody)
@@ -233,8 +244,8 @@ Called for a REST page in the event of a login being required</Description>
 	#; Don't want the session token
 	Set %response.OutputSessionToken = 0
 
-	#; We don't want Basic authentication usually
-	Do:$$$Debug %response.SetHeader("WWW-Authenticate","Basic")
+	#; We want Basic authentication
+	//Do %response.SetHeader("WWW-Authenticate","Basic")
 
 	#; We need to manually write out the headers here because PAGE has not been called
 	Do %response.WriteHTTPHeader()
@@ -254,10 +265,7 @@ Issue an '500' error and give some indication as to what occurred.<br>
 	// we are expecting status
 	#; Set the response Http status
 	Set %response.Status="500 Internal Server Error"
-	
-	#; Skip duplicate calls 
-	Quit:$isObject(pStatus) $$$OK
-	
+
 	#; Return a helpful error string
 	Write "{""Error"":"_$$$ZENJSSTR($System.Status.GetErrorText(pStatus,%session.Language))_"}"
 
@@ -308,21 +316,15 @@ Returns OK if namespace both exists and contains MDX2JSON package.<br>
 		return $$$OK
 	}
 
-	return:('##class(%SYS.Namespace).Exists(Namespace)) $$$ERROR($$$NamespaceUnavailable, Namespace)
-	new $Namespace
-	set $Namespace = Namespace
-	
-	set class = "MDX2JSON.Utils"
-	
-	set exists = ##class(%Dictionary.CompiledClass).%ExistsId(class)
-	return:(exists=$$$NO) $$$ERROR($$$GeneralError, "MDX2JSON package is not mapped to " _ Namespace)
-	
-	// If the current namespace holds unmapped MDX2JSON, include it regardless of dashboards existence
-	return:(##class(%RoutineMgr).IsMapped(class _ ".cls") = $$$NO) $$$OK
-	
-	// Strictly speaking this can be a false-positive check
-	set exists = ($data(@##class(MDX2JSON.DashboardRS).#global)>0)
-	return:(exists=$$$NO) $$$ERROR($$$GeneralError, "No dashboards exist in " _ Namespace)
+	return:('##class(%SYS.Namespace).Exists(Namespace)) $$$ERROR($$$NamespaceUnavailable,Namespace)
+
+	if Namespace'=$Namespace {
+		set oldNS = $Namespace
+		zn Namespace
+		set exists = ##class(%Dictionary.CompiledClass).%ExistsId("MDX2JSON.Utils")
+		zn oldNS
+		return:(exists=0) $$$ERROR($$$GeneralError, "MDX2JSON package is not mapped to " _ Namespace)
+	}
 
 	return $$$OK
 ]]></Implementation>
@@ -333,10 +335,11 @@ Returns OK if namespace both exists and contains MDX2JSON package.<br>
 This project creates the DispatchMethod used to dispatch the Url and Method to the associated target method</Description>
 <ClassMethod>1</ClassMethod>
 <CodeMode>generator</CodeMode>
-<FormalSpec>pIndex:%Integer</FormalSpec>
+<FormalSpec>pIndex:%String,pMethod:%String,*pResourceMatched:%Boolean,*pMatcher:%Regex.Matcher</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
 	#dim tSC As %Status = $$$OK
+
 	#dim e As %Exception.AbstractException
 
 	#dim tStream As %Stream.TmpCharacter
@@ -474,34 +477,22 @@ pArgs - additional arguments]]></Description>
 <ProcedureBlock>0</ProcedureBlock>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	set tOldIORedirected = ##class(%Device).ReDirectIO()
-	set tOldMnemonic = ##class(%Device).GetMnemonicRoutine()
-	set tOldIO = $io
-	try {
-		set str=""
+	set str=""
 
-		//Redirect IO to the current routine - makes use of the labels defined below
-		use $io::("^"_$ZNAME)
+	//Redirect IO to the current routine - makes use of the labels defined below
+	use $io::("^"_$ZNAME)
 
-		//Enable redirection
-		do ##class(%Device).ReDirectIO(1)
+	//Enable redirection
+	do ##class(%Device).ReDirectIO(1)
 
-		if $isobject(pObj) {
-			do $Method(pObj,pMethod,pArgs...)
-		} elseif $$$comClassDefined(pObj) {
-			do $ClassMethod(pObj,pMethod,pArgs...)
-		}
-	} catch ex {
-		set str = ""
+	if $isobject(pObj) {
+		do $Method(pObj,pMethod,pArgs...)
+	} elseif $$$comClassDefined(pObj) {
+		do $ClassMethod(pObj,pMethod,pArgs...)
 	}
 
-	//Return to original redirection/mnemonic routine settings
-	if (tOldMnemonic '= "") {
-		use tOldIO::("^"_tOldMnemonic)
-	} else {
-		use tOldIO
-	}
-	do ##class(%Device).ReDirectIO(tOldIORedirected)
+	//Disable redirection
+	do ##class(%Device).ReDirectIO(0)
 
 	quit str
 

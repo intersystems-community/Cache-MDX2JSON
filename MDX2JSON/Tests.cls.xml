@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25">
+<Export generator="IRIS" version="26">
 <Class name="MDX2JSON.Tests">
 <Description>
 Classes with support methods for testing MDX2JSON</Description>
@@ -24,19 +24,19 @@ do ##class(MDX2JSON.Tests).ProjectLength()</Description>
 <FormalSpec>Mask:%String="MDX2JSON"</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	 Set rset = ##class(%ResultSet).%New("%DynamicQuery:SQL")
-	 Do rset.Prepare("SELECT Name FROM %Dictionary.ClassDefinition WHERE NOT Name %STARTSWITH '%sqlcq' AND Name [ '"_Mask_"'")
-	 Do rset.Execute()
-	 Set count = 0
+	Set rset = ##class(%ResultSet).%New("%DynamicQuery:SQL")
+	Do rset.Prepare("SELECT Name FROM %Dictionary.ClassDefinition WHERE NOT Name %STARTSWITH '%sqlcq' AND Name [ '"_Mask_"'")
+	Do rset.Execute()
+	Set count = 0
 
-	 While (rset.Next()) {
-		 Set class = rset.Data("Name")
-		 Do ##class(%Compiler.UDL.TextServices).GetTextAsArray($Namespace, class, .raw)
-		 Set lines = $O(raw($C(0)), -1)
-		 Write class, $JUSTIFY("",30-$L(class)), $J(lines,5), !
-		 Set count = count + lines
-	 }
-	 Write "Total ", $JUSTIFY("",24), $J(count,5)
+	While (rset.Next()) {
+		Set class = rset.Data("Name")
+		Do ##class(%Compiler.UDL.TextServices).GetTextAsArray($Namespace, class, .raw)
+		Set lines = $O(raw($C(0)), -1)
+		Write class, $JUSTIFY("",30-$L(class)), $J(lines,5), !
+		Set count = count + lines
+	}
+	Write "Total ", $JUSTIFY("",24), $J(count,5)
 ]]></Implementation>
 </Method>
 
@@ -170,24 +170,24 @@ Changes widget key if previously encountered</Description>
 	set rs = ##class(%DeepSee.Dashboard.Definition).ExtentFunc()
 	set WidgetKeyList=""
 	while rs.%Next() {
-		 set Dash = ##class(%DeepSee.Dashboard.Definition).%OpenId(rs.%Get("ID"))
-		 for i=1:1:Dash.widgets.Count() {
-			 set WidgetKey = Dash.widgets.GetAt(i).key
-			 if $LF(WidgetKeyList,WidgetKey) {
-				 write "Duplicate dash: ", rs.%Get("ID"), " oldkey: ", WidgetKey
-				 // generate new randow widget key
-				 do {
-				 	set WidgetKey = $R(1000000000)
-				 } while ($LF(WidgetKeyList,WidgetKey)'=0)
-				 set WidgetKeyList = WidgetKeyList _$LB(WidgetKey)
-				 set Dash.widgets.GetAt(i).key = WidgetKey
-				 write "newkey: ", WidgetKey, !
-				 write $System.Status.GetErrorText(Dash.%Save())
-			 } else {
-				 set WidgetKeyList = WidgetKeyList _$LB(WidgetKey)
-			 }
-		 }
-   }
+		set Dash = ##class(%DeepSee.Dashboard.Definition).%OpenId(rs.%Get("ID"))
+		for i=1:1:Dash.widgets.Count() {
+			set WidgetKey = Dash.widgets.GetAt(i).key
+			if $LF(WidgetKeyList,WidgetKey) {
+				write "Duplicate dash: ", rs.%Get("ID"), " oldkey: ", WidgetKey
+				// generate new randow widget key
+				do {
+					set WidgetKey = $R(1000000000)
+				} while ($LF(WidgetKeyList,WidgetKey)'=0)
+				set WidgetKeyList = WidgetKeyList _$LB(WidgetKey)
+				set Dash.widgets.GetAt(i).key = WidgetKey
+				write "newkey: ", WidgetKey, !
+				write $System.Status.GetErrorText(Dash.%Save())
+			} else {
+				set WidgetKeyList = WidgetKeyList _$LB(WidgetKey)
+			}
+		}
+	}
 ]]></Implementation>
 </Method>
 
