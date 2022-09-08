@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25">
+<Export generator="IRIS" version="26">
 <Class name="MDX2JSON.Installer">
 <TimeCreated>63481,77165.410085</TimeCreated>
 
@@ -29,7 +29,7 @@ todo add optional parameter WEBAPP to Alter web app name if it needs to have ano
 <Database Name="${Namespace}" Dir="${MGRDIR}/${Namespace}" Create="yes" MountRequired="true" Resource="%DB_${Namespace}" PublicPermissions="RW" MountAtStartup="true"/>
 </Configuration>
 </Namespace>
- <Log Text="End Creating namespace ${Namespace}" Level="0"/>
+<Log Text="End Creating namespace ${Namespace}" Level="0"/>
 </If>
 
 <Namespace Name="${Namespace}" Create="no">
@@ -163,30 +163,30 @@ Do ##class(MDX2JSON.Installer).setup(.pVars)</Description>
 <Method name="Update">
 <Description><![CDATA[
 Downloads and compiles GitHub repository.<br>
- <b>Owner</b> - The name of the repository owner.<br>
- <b>Repository</b> - The name of the repository.<br>
- <b>Branch</b> - The name of the commit/branch/tag. If skipped the repository’s default branch (usually master) would be used.<br>
- <b>Username</b> - GitHub user, who has access to repository. Optional for public repositories.<br>
- <b>Password</b> - GitHub password, corresponding to Username. Optional for public repositories.<br>
- Note, that with Username, you can make up to 5,000 requests per hour.
- For unauthenticated requests, the rate limit allows to make up to 60 requests per hour.
- Unauthenticated requests are associated with an IP address.<br>
- <b>Namespace</b> - Namespace, where to download and compile repository.<br>
+	<b>Owner</b> - The name of the repository owner.<br>
+	<b>Repository</b> - The name of the repository.<br>
+	<b>Branch</b> - The name of the commit/branch/tag. If skipped the repository’s default branch (usually master) would be used.<br>
+	<b>Username</b> - GitHub user, who has access to repository. Optional for public repositories.<br>
+	<b>Password</b> - GitHub password, corresponding to Username. Optional for public repositories.<br>
+	Note, that with Username, you can make up to 5,000 requests per hour.
+	For unauthenticated requests, the rate limit allows to make up to 60 requests per hour.
+	Unauthenticated requests are associated with an IP address.<br>
+	<b>Namespace</b> - Namespace, where to download and compile repository.<br>
 
- For example in the repository: https://github.com/intersystems-ru/Cache-MDX2JSON<br>
- Owner - intersystems-ru, Repository - Cache-MDX2JSON.<br> ]]></Description>
+	For example in the repository: https://github.com/intersystems-ru/Cache-MDX2JSON<br>
+	Owner - intersystems-ru, Repository - Cache-MDX2JSON.<br> ]]></Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>Namespace=$Namespace,Owner:%String="intersystems-ru",Repository:%String="Cache-MDX2JSON",Branch:%String,Username:%String,Password:%String</FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	Set namespace = $Namespace
- 	Set SSLConfig = "GitHub"
+	Set SSLConfig = "GitHub"
 
- 	Zn "%SYS"
- 	Do:'##class(Security.SSLConfigs).Exists(SSLConfig) ##class(Security.SSLConfigs).Create(SSLConfig)
+	Zn "%SYS"
+	Do:'##class(Security.SSLConfigs).Exists(SSLConfig) ##class(Security.SSLConfigs).Create(SSLConfig)
 
- 	Set req=##class(%Net.HttpRequest).%New()
- 	Set req.Https=1
+	Set req=##class(%Net.HttpRequest).%New()
+	Set req.Https=1
 	Set req.SSLConfiguration=SSLConfig
 	Set req.Server="api.github.com"
 	Set req.Location = "repos/" _ Owner _ "/" _ Repository _ "/contents" 	// as described in https://developer.github.com/v3/repos/
@@ -195,19 +195,19 @@ Downloads and compiles GitHub repository.<br>
 
 	If ($d(Username) && $d(Password)) {										// supply Username and Passwor, if both are provided. GitHub accept Basic Auth
 		Set req.Username = Username											// https://developer.github.com/v3/auth/
-	 	Set req.Password = Password
+		Set req.Password = Password
 	}
 
- 	Set links = ##class(%ListOfDataTypes).%New()
- 	Set st = ..ProcessDirectory("",req,.links)
- 	Return:$$$ISERR(st) st
- 	
- 	Zn Namespace
+	Set links = ##class(%ListOfDataTypes).%New()
+	Set st = ..ProcessDirectory("",req,.links)
+	Return:$$$ISERR(st) st
+	
+	Zn Namespace
 	Set st = ..DownloadFiles(links,req,.list)
 	Set st2 = $system.OBJ.CompileList(.list)
 	Zn namespace
 
- 	Return $$$ADDSC(st, st2)
+	Return $$$ADDSC(st, st2)
 ]]></Implementation>
 </Method>
 
@@ -228,10 +228,10 @@ Process one directory of GitHub repository. Recursive.<br>
 	Return:$$$ISERR(st) st
 	Return:(Request.HttpResponse.StatusCode = 404) $$$ERROR($$$GeneralError,"Repository doesn't exist OR you don't have access")
 	Return:((Request.HttpResponse.StatusCode = 403) && (Request.HttpResponse.GetHeader("X-RATELIMIT-REMAINING")=0)) $$$ERROR($$$GeneralError,"API rate limit exceeded. Try logging in.")
- 	Return:(Request.HttpResponse.StatusCode '= 200) $$$ERROR($$$GeneralError,"Received " _ Request.HttpResponse.StatusCode _ " status, expected 200")
+	Return:(Request.HttpResponse.StatusCode '= 200) $$$ERROR($$$GeneralError,"Received " _ Request.HttpResponse.StatusCode _ " status, expected 200")
 
- 	#dim objects As List of %ZEN.proxyObject
- 	#dim obj As %ZEN.proxyObject
+	#dim objects As List of %ZEN.proxyObject
+	#dim obj As %ZEN.proxyObject
 	Set st = ##class(%ZEN.Auxiliary.jsonProvider).%ConvertJSONToObject(Request.HttpResponse.Data,,.objects,1)
 	Return:$$$ISERR(st) st
 
@@ -260,7 +260,7 @@ Check that incoming file is the one you need.</Description>
 <Implementation><![CDATA[
 	Set extensions = ",xml,cls,csp,csr,mac,int,bas,inc,gbl,prj,obj,pkg,gof,"
 	Return:($L(File.name,".")=1) 0 //no extension
-        Return:File.name["module.xml" 0 // ZPM skip
+	Return:File.name["module.xml" 0 // ZPM skip
 	Set File.Extension = $P(File.name,".",$L(File.name,"."))
 	Return $F(extensions,","_$ZCVT(File.Extension,"l")_",")
 ]]></Implementation>
@@ -356,10 +356,10 @@ Delete <var>Namespace</var>, related web apps and databases]]></Description>
 			Kill NamespaceObj
 			
 			// Remove Ensemble namespace
-		 	If ((##class(%Library.EnsembleMgr).IsEnsembleInstalled() || ##class(%Library.EnsembleMgr).IsHealthShareInstalled())) {
-		 		Set st1 = ##class(%Library.EnsembleMgr).DisableNamespace(Namespace)
-		 		Set st = $$$ADDSC(st, st1)
-		 	}
+			If ((##class(%Library.EnsembleMgr).IsEnsembleInstalled() || ##class(%Library.EnsembleMgr).IsHealthShareInstalled())) {
+				Set st1 = ##class(%Library.EnsembleMgr).DisableNamespace(Namespace)
+				Set st = $$$ADDSC(st, st1)
+			}
 		
 			Set st1 = ..DeleteWebApps(Namespace)
 			Set st = $$$ADDSC(st, st1)
@@ -400,9 +400,9 @@ Delete all webapps in a <var>Namespace</var>, also dele]]></Description>
 	Set st = $$$OK
 	Try {
 		If ##Class(Config.Databases).Get(Database,.Properties) {
-  			Set Directory = $G(Properties("Directory"))
-  			Set st1 = ##class(SYS.Database).DismountDatabase(Directory)
-  			Set st = $$$ADDSC(st, st1)
+			Set Directory = $G(Properties("Directory"))
+			Set st1 = ##class(SYS.Database).DismountDatabase(Directory)
+			Set st = $$$ADDSC(st, st1)
 			Set st1 = ##class(Config.Databases).Delete(Database)
 			Set st = $$$ADDSC(st, st1)
 			Set st1 = ##class(SYS.Database).DeleteDatabase(Directory)
@@ -513,7 +513,7 @@ Activate a configuration in a <var>Namespace</var>]]></Description>
 	Return:$$$ISERR(st) st
 	Set st = ##Class(Config.Map).MoveToActive(Namespace)
 	Return:$$$ISERR(st) st
- 	Set st = ##Class(Config.Namespaces).Load(Namespace)
+	Set st = ##Class(Config.Namespaces).Load(Namespace)
 	Return st
 ]]></Implementation>
 </Method>

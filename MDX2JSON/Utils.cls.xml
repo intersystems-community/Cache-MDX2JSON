@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25">
+<Export generator="IRIS" version="26">
 <Class name="MDX2JSON.Utils">
 <Description><![CDATA[
 Utility class, wrappers for processing of MDX queries in <b>MDX2JSON.ResultSet</b>.
@@ -231,7 +231,7 @@ Get all filters for DeepSee DataSource in JSON format.<br>
 			quit:key=""
 			kill:'pRequestedFilters.Find($lg(tFilters(key),2)) tFilters(key)
 			set key = $order(tFilters(key))
-	   	}
+		}
 	}
 
 	if (pValues=1) {
@@ -241,10 +241,10 @@ Get all filters for DeepSee DataSource in JSON format.<br>
 			return:$$$ISERR(st) st
 			merge tFilters(key) = tMembers // merge filter values
 			set key = $order(tFilters(key))
-	   	}
+		}
 	}
-   	
-   	set st = ##class(%ZEN.Auxiliary.jsonProvider).%ArrayToJSON($lb("name","path","info"),.tFilters)
+			
+	set st = ##class(%ZEN.Auxiliary.jsonProvider).%ArrayToJSON($lb("name","path","info"),.tFilters)
 
 	return st
 ]]></Implementation>
@@ -292,26 +292,26 @@ Opens DeepSee pivot by it's name. Returns status of atempt to locate and open pi
 <FormalSpec>PivotName:%Integer,*Pivot:%DeepSee.Dashboard.Pivot</FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
-	 kill Pivot
-	 
-	 set id = ""
-	 set global = ##class(MDX2JSON.DashboardRS).#global
-	 set pivotclass = "%DeepSee.Dashboard.Pivot"
-	 for {
-	 	set id = $order(@global@(id))
-	 	quit:id=""
-	 		
-	 	/// first we check that it's a pivot (not a dashboard, etc.)
-		set oid = ##class(%DeepSee.UserLibrary.FolderItem).%ComposeOid(id)
-	    do ##class(%DeepSee.UserLibrary.FolderItem).%OnDetermineClass(oid, .class)
-	    CONTINUE:class'=pivotclass
-	    
-	    /// second we check that it's the one we need
-	    quit:..GetPivotFullName(id)=PivotName
-	 }
-	 return:id="" $$$ERROR($$$GeneralError,"Pivot " _ PivotName _ " does not exist")
-	 set Pivot = ##class(%DeepSee.Dashboard.Pivot).%OpenId(id,,.st)
-	 return st
+	kill Pivot
+	
+	set id = ""
+	set global = ##class(MDX2JSON.DashboardRS).#global
+	set pivotclass = "%DeepSee.Dashboard.Pivot"
+	for {
+		set id = $order(@global@(id))
+		quit:id=""
+			
+		/// first we check that it's a pivot (not a dashboard, etc.)
+	set oid = ##class(%DeepSee.UserLibrary.FolderItem).%ComposeOid(id)
+		do ##class(%DeepSee.UserLibrary.FolderItem).%OnDetermineClass(oid, .class)
+		CONTINUE:class'=pivotclass
+		
+		/// second we check that it's the one we need
+		quit:..GetPivotFullName(id)=PivotName
+	}
+	return:id="" $$$ERROR($$$GeneralError,"Pivot " _ PivotName _ " does not exist")
+	set Pivot = ##class(%DeepSee.Dashboard.Pivot).%OpenId(id,,.st)
+	return st
 ]]></Implementation>
 </Method>
 
@@ -322,8 +322,8 @@ Get Pivot full name by id</Description>
 <FormalSpec>id:%String</FormalSpec>
 <Implementation><![CDATA[
 	set folder = ##class(%DeepSee.UserLibrary.FolderItem).folderGetStored(id)
-    set name = ##class(%DeepSee.UserLibrary.FolderItem).nameGetStored(id)
-    return ##class(%DeepSee.Dashboard.Pivot).fullNameCompute(id, folder, name)
+	set name = ##class(%DeepSee.UserLibrary.FolderItem).nameGetStored(id)
+	return ##class(%DeepSee.Dashboard.Pivot).fullNameCompute(id, folder, name)
 ]]></Implementation>
 </Method>
 

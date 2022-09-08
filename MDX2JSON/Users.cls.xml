@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25">
+<Export generator="IRIS" version="26">
 <Class name="MDX2JSON.Users">
 <Description><![CDATA[
 Class for Setting/Getting User <b>settings</b> for various <b>apps</b>.<br>
@@ -104,7 +104,7 @@ Map <b>Global</b> From <b>Database</b> into <b>Namespace</b>]]></Description>
 	return:$$$ISERR(st) st
 	set st = ##Class(Config.Map).MoveToActive(Namespace)
 	return:$$$ISERR(st) st
- 	set st = ##Class(Config.Namespaces).Load(Namespace)
+	set st = ##Class(Config.Namespaces).Load(Namespace)
 	
 	return st
 ]]></Implementation>
@@ -230,11 +230,11 @@ Get list of all users</Description>
 	set $Namespace = "%SYS"
 	set userlist = ##class(%ListOfDataTypes).%New()
 	set statement = ##class(%SQL.Statement).%New()
-    set status = statement.%PrepareClassQuery("Security.Users","List")
-    if $$$ISERR(status) { do $system.OBJ.DisplayError(status) }
-    set resultset = statement.%Execute()
-    while resultset.%Next() {
-        do userlist.Insert(resultset.%Get("Name"))
+	set status = statement.%PrepareClassQuery("Security.Users","List")
+	if $$$ISERR(status) { do $system.OBJ.DisplayError(status) }
+	set resultset = statement.%Execute()
+	while resultset.%Next() {
+		do userlist.Insert(resultset.%Get("Name"))
 	}
 	return userlist
 ]]></Implementation>

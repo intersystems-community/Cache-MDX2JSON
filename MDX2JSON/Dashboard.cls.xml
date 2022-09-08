@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25">
+<Export generator="IRIS" version="26">
 <Class name="MDX2JSON.Dashboard">
 <Description>
 Class with methods related to DeepSee Dashboard and Widget processing.</Description>
@@ -87,26 +87,26 @@ Opens DeepSee dashboard by it's name. Returns status of aatempt to locate and op
 <FormalSpec>DashName:%Integer,*Dashboard:%DeepSee.Dashboard.Definition</FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
-	 kill Dashboard
-	 
-	 set id = ""
-	 set global = ##class(MDX2JSON.DashboardRS).#global
-	 set dashclass = ##class(MDX2JSON.DashboardRS).#dashclass
-	 for {
-	 	set id = $order(@global@(id))
-	 	quit:id=""
-	 		
-	 	/// first we check that it's a dashboard (not a pivot, etc.)
+		kill Dashboard
+		
+		set id = ""
+		set global = ##class(MDX2JSON.DashboardRS).#global
+		set dashclass = ##class(MDX2JSON.DashboardRS).#dashclass
+		for {
+			set id = $order(@global@(id))
+			quit:id=""
+				
+			/// first we check that it's a dashboard (not a pivot, etc.)
 		set oid = ##class(%DeepSee.UserLibrary.FolderItem).%ComposeOid(id)
-	    do ##class(%DeepSee.UserLibrary.FolderItem).%OnDetermineClass(oid, .class)
-	    CONTINUE:class'=dashclass
-	    
-	    /// second we check that it's the one we need
-	    quit:$ZCVT(##class(MDX2JSON.DashboardRS).GetDashFullName(id),"L")=$ZCVT(DashName,"L")
-	 }
-	 return:id="" $$$ERROR($$$GeneralError,"Dashboard " _ DashName _ " does not exist")
-	 set Dashboard = ##class(%DeepSee.Dashboard.Definition).%OpenId(id,,.st)
-	 return st
+			do ##class(%DeepSee.UserLibrary.FolderItem).%OnDetermineClass(oid, .class)
+			CONTINUE:class'=dashclass
+			
+			/// second we check that it's the one we need
+			quit:$ZCVT(##class(MDX2JSON.DashboardRS).GetDashFullName(id),"L")=$ZCVT(DashName,"L")
+		}
+		return:id="" $$$ERROR($$$GeneralError,"Dashboard " _ DashName _ " does not exist")
+		set Dashboard = ##class(%DeepSee.Dashboard.Definition).%OpenId(id,,.st)
+		return st
 ]]></Implementation>
 </Method>
 
@@ -460,7 +460,7 @@ Returns name of widget's pivot source cube.</Description>
 </Method>
 
 <Storage name="Default">
-<Type>%Library.CacheStorage</Type>
+<Type>%Storage.Persistent</Type>
 </Storage>
 
 <Method name="DetermineWidgetDataSource">
