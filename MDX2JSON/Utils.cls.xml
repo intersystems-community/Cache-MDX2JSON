@@ -167,10 +167,26 @@ Automatic processing of MDX Drillthrough query and outputting resulting listing 
 	set st = ..ExecuteResultSet(RS)
 	return:$$$ISERR(st) st
 	
-	set SQL = RS.%GetListingSQL()
-	do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,SQL,,$$$MaxCacheInt)
+	Set rset = ##class(%SQL.Statement).%ExecDirect(,RS.%GetListingSQL())
+	set tMetadata = rset.%GetMetadata()
+	set result = ##class(%DynamicObject).%New()
+	set result.children = []
 
-	return $$$OK
+	for {set x=rset.%GetRow(.row,.status)
+    	if x=1 {
+			set rowJSON = {}
+			for i=1:1:tMetadata.columnCount {
+				set rowValue = $LIST(row, i)
+				if ($ISVALIDNUM(rowValue)) {set rowValue = $NUMBER(rowValue)}
+				do rowJSON.%Set(tMetadata.columns.GetAt(i).colName, rowValue)
+			}
+			do result.children.%Push(rowJSON)
+		}
+		else { 
+			write result.%ToJSON()
+			return $$$OK
+		}
+	}
 ]]></Implementation>
 </Method>
 
