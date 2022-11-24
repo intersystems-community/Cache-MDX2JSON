@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Export generator="Cache" version="25">
-<Class name="MDX2JSON.Dashboard">
+<Class name="MDX4JSON.Dashboard">
 <Description>
 Class with methods related to DeepSee Dashboard and Widget processing.</Description>
-<IncludeCode>MDX2JSON.MDX2JSON</IncludeCode>
+<IncludeCode>MDX4JSON.MDX4JSON</IncludeCode>
 <TimeCreated>63568,54242.448605</TimeCreated>
 
 <Parameter name="folderName">
@@ -20,8 +20,8 @@ Get SQL for folder, from which we get Dashboards. </Description>
 <FormalSpec>folderName:%String=..#folderName</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	set basesql = "SELECT MDX2JSON.ResolveText(title) AS title, fullName AS path, MDX2JSON.GetDashCover(bookCover) AS Cover FROM %DeepSee_Dashboard.Definition "
-	set basefilter = "WHERE ((NOT (foldername %STARTSWITH '$TRASH' or foldername %STARTSWITH 'HIDDEN')) OR foldername IS NULL) AND (MDX2JSON.IsItemVisible(fullName) = 1) "
+	set basesql = "SELECT MDX4JSON.ResolveText(title) AS title, fullName AS path, MDX4JSON.GetDashCover(bookCover) AS Cover FROM %DeepSee_Dashboard.Definition "
+	set basefilter = "WHERE ((NOT (foldername %STARTSWITH '$TRASH' or foldername %STARTSWITH 'HIDDEN')) OR foldername IS NULL) AND (MDX4JSON.IsItemVisible(fullName) = 1) "
 	return:folderName="" basesql _ basefilter
 	set filter = "AND folderName %STARTSWITH '" _ folderName _"'"
 	return basesql _ basefilter _ filter
@@ -31,7 +31,7 @@ Get SQL for folder, from which we get Dashboards. </Description>
 <Method name="GetDashCover">
 <Description><![CDATA[
 Extracts dashboard cover from %DeepSee.Dashboard.Definition class bookCover property.<br>
-Usage: Select MDX2JSON.Dashboard_GetDashCover(bookCover) FROM %DeepSee_Dashboard.Definition]]></Description>
+Usage: Select MDX4JSON.Dashboard_GetDashCover(bookCover) FROM %DeepSee_Dashboard.Definition]]></Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>bookCover:%String=""</FormalSpec>
 <ReturnType>%String</ReturnType>
@@ -47,7 +47,7 @@ Usage: Select MDX2JSON.Dashboard_GetDashCover(bookCover) FROM %DeepSee_Dashboard
 <Method name="IsItemVisible">
 <Description><![CDATA[
 Check visibility of folder item to current user.<br>
-Usage: Select fullname, MDX2JSON.IsItemVisible(fullname) FROM %DeepSee_Dashboard.Definition]]></Description>
+Usage: Select fullname, MDX4JSON.IsItemVisible(fullname) FROM %DeepSee_Dashboard.Definition]]></Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>fullName:%String=""</FormalSpec>
 <ReturnType>%String</ReturnType>
@@ -68,7 +68,7 @@ A localized string can take the following forms:<br>
 "$$$String" -- equivalent to $$$Text("String","DeepSeeUser")<br>
 "$$$String/Domain" -- equivalent to $$$Text("String","Domain")<br>
 Equivalent to ##class(%DeepSee.UserPortal.Utils).%ResolveText(), but in SQL context<br>
-Usage: Select MDX2JSON.Dashboard_ResolveText(title) FROM %DeepSee_Dashboard.Definition]]></Description>
+Usage: Select MDX4JSON.Dashboard_ResolveText(title) FROM %DeepSee_Dashboard.Definition]]></Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>Text:%String</FormalSpec>
 <ReturnType>%String</ReturnType>
@@ -90,8 +90,8 @@ Opens DeepSee dashboard by it's name. Returns status of aatempt to locate and op
 	 kill Dashboard
 	 
 	 set id = ""
-	 set global = ##class(MDX2JSON.DashboardRS).#global
-	 set dashclass = ##class(MDX2JSON.DashboardRS).#dashclass
+	 set global = ##class(MDX4JSON.DashboardRS).#global
+	 set dashclass = ##class(MDX4JSON.DashboardRS).#dashclass
 	 for {
 	 	set id = $order(@global@(id))
 	 	quit:id=""
@@ -102,7 +102,7 @@ Opens DeepSee dashboard by it's name. Returns status of aatempt to locate and op
 	    CONTINUE:class'=dashclass
 	    
 	    /// second we check that it's the one we need
-	    quit:$ZCVT(##class(MDX2JSON.DashboardRS).GetDashFullName(id),"L")=$ZCVT(DashName,"L")
+	    quit:$ZCVT(##class(MDX4JSON.DashboardRS).GetDashFullName(id),"L")=$ZCVT(DashName,"L")
 	 }
 	 return:id="" $$$ERROR($$$GeneralError,"Dashboard " _ DashName _ " does not exist")
 	 set Dashboard = ##class(%DeepSee.Dashboard.Definition).%OpenId(id,,.st)
@@ -198,8 +198,8 @@ Converts relevant parts of %DeepSee.Dashboard.Widget object into %ZEN.proxyObjec
 		}
 	}
 
-	if ##class(%Dictionary.CompiledMethod).%ExistsId("MDX2JSON.Dashboard||Process"_Widget.subtype) {
-		do $ClassMethod("MDX2JSON.Dashboard", "Process"_Widget.subtype, Widget, obj)
+	if ##class(%Dictionary.CompiledMethod).%ExistsId("MDX4JSON.Dashboard||Process"_Widget.subtype) {
+		do $ClassMethod("MDX4JSON.Dashboard", "Process"_Widget.subtype, Widget, obj)
 	}
 
 	if (Widget.properties.Count()>0) {
@@ -507,7 +507,7 @@ The type can be: "%Integer", "%Boolean", or "ENUM^caption1:value1,caption2:value
 <var>title</var> is an optional tooltip displayed for the setting.<br/>
 Custom portlet settings can be controlled using the SETTINGS=PORTLET parameter in the 
 dashboard URL 
-set list = ##class(MDX2JSON.Dashboard).KPISettongsToArray("DeepSee.Model.PortletDemo.ClockPortlet")]]></Description>
+set list = ##class(MDX4JSON.Dashboard).KPISettongsToArray("DeepSee.Model.PortletDemo.ClockPortlet")]]></Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>Class:%Dictionary.CacheClassname</FormalSpec>
 <ReturnType>%ListOfObjects</ReturnType>

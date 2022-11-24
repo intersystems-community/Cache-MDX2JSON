@@ -1,22 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25">
-<Class name="MDX2JSON.ResultSet">
-<Description><![CDATA[
-This class provides an API for executing queries against DeepSee cubes
-and viewing the results.<br/>]]></Description>
-<IncludeCode>MDX2JSON.MDX2JSON</IncludeCode>
-<Super>%DeepSee.ResultSet</Super>
-<TimeCreated>63463,69237.325048</TimeCreated>
+Include MDX4JSON.MDX4JSON
 
-<Method name="ToProxyObject">
-<Description><![CDATA[
-Converts ResultSet to %ZEN.proxyObject.<br>
-<b>pStatus</b> - Status of execution.<br>]]></Description>
-<FormalSpec>*pStatus:%Status</FormalSpec>
-<ReturnType>%ZEN.proxyObject</ReturnType>
-<Implementation><![CDATA[
+/// This class provides an API for executing queries against DeepSee cubes
+/// and viewing the results.<br/>
+Class MDX4JSON.ResultSet Extends %DeepSee.ResultSet
+{
+
+/// Converts ResultSet to %ZEN.proxyObject.<br>
+/// <b>pStatus</b> - Status of execution.<br>
+Method ToProxyObject(Output pStatus As %Status) As %ZEN.proxyObject
+{
 	set ^DeepSee.QueryLog($UserName,$I(^DeepSee.QueryLog($UserName))) = ..%GetQueryText()
-	set status = $$$ERROR($$$GeneralError,"Error occured while executing ##class(MDX2JSON.ResultSet).ToProxyObject() method")
+	set status = $$$ERROR($$$GeneralError,"Error occured while executing ##class(MDX4JSON.ResultSet).ToProxyObject() method")
 
 	set obj=$$$NewDynObj
 
@@ -50,14 +44,11 @@ Converts ResultSet to %ZEN.proxyObject.<br>
 	}
 	set pStatus = $$$OK
 	return obj
-]]></Implementation>
-</Method>
+}
 
-<Method name="InfoToProxyObject">
-<Description>
-Returns meta-information about ResultSet.</Description>
-<ReturnType>%ZEN.proxyObject</ReturnType>
-<Implementation><![CDATA[
+/// Returns meta-information about ResultSet.
+Method InfoToProxyObject() As %ZEN.proxyObject
+{
 	set tCubeIndex = ..%CubeKey
 	set tQueryKey = ..%QueryKey
 	set tCubeName = $$$UPPER(..%Cube)
@@ -90,14 +81,11 @@ Returns meta-information about ResultSet.</Description>
 	set info.decimalSeparator = ##class(%SYS.NLS.Format).GetFormatItem("DecimalSeparator")
 									
 	return info
-]]></Implementation>
-</Method>
+}
 
-<Method name="AxesToListOfObjects">
-<Description>
-Returns array of Axes</Description>
-<ReturnType>%ListOfObjects</ReturnType>
-<Implementation><![CDATA[
+/// Returns array of Axes
+Method AxesToListOfObjects() As %ListOfObjects
+{
 	set tCubeIndex = ..%CubeKey
 	set tQueryKey = ..%QueryKey
 	set tAxisCount = ..%GetAxisCount()
@@ -119,14 +107,10 @@ Returns array of Axes</Description>
 	}
 
 	return axes
-]]></Implementation>
-</Method>
+}
 
-<Method name="ProcessOneAxis">
-<Internal>1</Internal>
-<FormalSpec>CubeIndex,AxisKey,AxisNumber</FormalSpec>
-<ReturnType>%ZEN.proxyObject</ReturnType>
-<Implementation><![CDATA[
+Method ProcessOneAxis(CubeIndex, AxisKey, AxisNumber) As %ZEN.proxyObject [ Internal ]
+{
 	set tCubeName = $$$UPPER(..%Cube)
 	set tQueryKey = ..%QueryKey
 
@@ -134,14 +118,10 @@ Returns array of Axes</Description>
 	set axis.tuples = ..ProcessOneAxisCell(CubeIndex, AxisKey, tCubeName, tQueryKey, AxisNumber, 1)
 
 	return axis
-]]></Implementation>
-</Method>
+}
 
-<Method name="ProcessOneAxisCell">
-<Internal>1</Internal>
-<FormalSpec>CubeIndex,AxisKey,CubeName,QueryKey,AxisNumber,Node</FormalSpec>
-<ReturnType>%ZEN.proxyObject</ReturnType>
-<Implementation><![CDATA[
+Method ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, Node) As %ZEN.proxyObject [ Internal ]
+{
 	set cell=$$$NewDynObj
 
 	set tNode = $G($$$DeepSeeAxisGLVN(CubeIndex,AxisKey,"axes",Node))
@@ -213,14 +193,11 @@ Returns array of Axes</Description>
 	set:$$$Debug cell.node = Node
 
 	return cell
-]]></Implementation>
-</Method>
+}
 
-<Method name="IsCellNull">
-<Description>
-Determine if cell is an invisyble system cell.</Description>
-<FormalSpec>Cell,AxisNumber,Node</FormalSpec>
-<Implementation><![CDATA[
+/// Determine if cell is an invisyble system cell.
+Method IsCellNull(Cell, AxisNumber, Node)
+{
 	return:((Cell.type = "axis") || (Cell.type = "set")) 1 // for top-level cells
 
 	return:(Cell.caption=0) 1 // typical caption for top-level cell
@@ -244,14 +221,11 @@ Determine if cell is an invisyble system cell.</Description>
 	}
 
 	return 1
-]]></Implementation>
-</Method>
+}
 
-<Method name="DataToListOfDataTypes">
-<Description>
-Returns array of cells (left-to-right, up-to-down)</Description>
-<ReturnType>%ListOfDataTypes</ReturnType>
-<Implementation><![CDATA[
+/// Returns array of cells (left-to-right, up-to-down)
+Method DataToListOfDataTypes() As %ListOfDataTypes
+{
 	set data = $$$NewDynDTList
 
 	set tCubeIndex = ..%CubeKey
@@ -298,14 +272,10 @@ Returns array of cells (left-to-right, up-to-down)</Description>
 	}
 
 	return data
-]]></Implementation>
-</Method>
+}
 
-<Method name="GetDefaultAxes">
-<Internal>1</Internal>
-<ClassMethod>1</ClassMethod>
-<ReturnType>%ListOfObjects</ReturnType>
-<Implementation><![CDATA[
+ClassMethod GetDefaultAxes() As %ListOfObjects [ Internal ]
+{
 	set axes=$$$NewDynObjList // all axes
 
 	set cell=$$$NewDynObj
@@ -335,7 +305,6 @@ Returns array of cells (left-to-right, up-to-down)</Description>
 	$$$Insert(axes,axis2)
 
 	return axes
-]]></Implementation>
-</Method>
-</Class>
-</Export>
+}
+
+}

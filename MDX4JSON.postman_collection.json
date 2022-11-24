@@ -1,9 +1,9 @@
 {
 	"variables": [],
 	"info": {
-		"name": "MDX2JSON",
+		"name": "MDX4JSON",
 		"_postman_id": "4f4197a2-af94-b40d-5797-352848f70631",
-		"description": "A collection to query MDX2JSON REST API",
+		"description": "A collection to query MDX4JSON REST API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
 	},
 	"item": [
@@ -42,7 +42,7 @@
 						"showPassword": false
 					}
 				},
-				"url": "http://{{host}}:{{port}}/MDX2JSON/Test?Namespace={{ns}}",
+				"url": "http://{{host}}:{{port}}/MDX4JSON/Test?Namespace={{ns}}",
 				"method": "GET",
 				"header": [
 					{
@@ -91,7 +91,7 @@
 						"showPassword": false
 					}
 				},
-				"url": "http://{{host}}:{{port}}/MDX2JSON/Format?Namespace={{ns}}",
+				"url": "http://{{host}}:{{port}}/MDX4JSON/Format?Namespace={{ns}}",
 				"method": "GET",
 				"header": [
 					{
@@ -117,7 +117,7 @@
 						"showPassword": false
 					}
 				},
-				"url": "http://{{host}}:{{port}}/MDX2JSON/Dashboards?Namespace={{ns}}",
+				"url": "http://{{host}}:{{port}}/MDX4JSON/Dashboards?Namespace={{ns}}",
 				"method": "GET",
 				"header": [
 					{
@@ -166,7 +166,7 @@
 						"showPassword": false
 					}
 				},
-				"url": "http://{{host}}:{{port}}/MDX2JSON/Dashboard?Namespace={{ns}}",
+				"url": "http://{{host}}:{{port}}/MDX4JSON/Dashboard?Namespace={{ns}}",
 				"method": "POST",
 				"header": [
 					{
@@ -223,7 +223,7 @@
 						"showPassword": false
 					}
 				},
-				"url": "http://{{host}}:{{port}}/MDX2JSON/Widgets?Namespace={{ns}}",
+				"url": "http://{{host}}:{{port}}/MDX4JSON/Widgets?Namespace={{ns}}",
 				"method": "POST",
 				"header": [
 					{
@@ -280,7 +280,7 @@
 						"showPassword": false
 					}
 				},
-				"url": "http://{{host}}:{{port}}/MDX2JSON/DataSource?Namespace={{ns}}",
+				"url": "http://{{host}}:{{port}}/MDX4JSON/DataSource?Namespace={{ns}}",
 				"method": "POST",
 				"header": [
 					{
@@ -337,7 +337,7 @@
 						"showPassword": false
 					}
 				},
-				"url": "http://{{host}}:{{port}}/MDX2JSON/MDX?Namespace={{ns}}",
+				"url": "http://{{host}}:{{port}}/MDX4JSON/MDX?Namespace={{ns}}",
 				"method": "POST",
 				"header": [
 					{
@@ -371,7 +371,7 @@
 						"showPassword": false
 					}
 				},
-				"url": "http://{{host}}:{{port}}/MDX2JSON/MDXDrillthrough?Namespace={{ns}}",
+				"url": "http://{{host}}:{{port}}/MDX4JSON/MDXDrillthrough?Namespace={{ns}}",
 				"method": "POST",
 				"header": [
 					{
@@ -428,7 +428,7 @@
 						"showPassword": false
 					}
 				},
-				"url": "http://{{host}}:{{port}}/MDX2JSON/Filters?Namespace={{ns}}",
+				"url": "http://{{host}}:{{port}}/MDX4JSON/Filters?Namespace={{ns}}",
 				"method": "POST",
 				"header": [
 					{
@@ -485,7 +485,7 @@
 						"showPassword": false
 					}
 				},
-				"url": "http://{{host}}:{{port}}/MDX2JSON/TermList?Namespace={{ns}}",
+				"url": "http://{{host}}:{{port}}/MDX4JSON/TermList?Namespace={{ns}}",
 				"method": "POST",
 				"header": [
 					{
@@ -542,7 +542,7 @@
 						"showPassword": false
 					}
 				},
-				"url": "http://{{host}}:{{port}}/MDX2JSON/Action/HOLEFOODS/ActionA?Namespace={{ns}}",
+				"url": "http://{{host}}:{{port}}/MDX4JSON/Action/HOLEFOODS/ActionA?Namespace={{ns}}",
 				"method": "POST",
 				"header": [
 					{
@@ -599,7 +599,7 @@
 						"showPassword": false
 					}
 				},
-				"url": "http://{{host}}:{{port}}/MDX2JSON/PivotVariables/HOLEFOODS?Namespace={{ns}}",
+				"url": "http://{{host}}:{{port}}/MDX4JSON/PivotVariables/HOLEFOODS?Namespace={{ns}}",
 				"method": "GET",
 				"header": [
 					{
@@ -648,7 +648,7 @@
 						"showPassword": false
 					}
 				},
-				"url": "http://{{host}}:{{port}}/MDX2JSON/Favorites?Namespace={{ns}}",
+				"url": "http://{{host}}:{{port}}/MDX4JSON/Favorites?Namespace={{ns}}",
 				"method": "GET",
 				"header": [
 					{
@@ -697,7 +697,7 @@
 						"showPassword": false
 					}
 				},
-				"url": "http://{{host}}:{{port}}/MDX2JSON/Favorites/Basic Dashboard Demo.dashboard?Namespace={{ns}}",
+				"url": "http://{{host}}:{{port}}/MDX4JSON/Favorites/Basic Dashboard Demo.dashboard?Namespace={{ns}}",
 				"method": "DELETE",
 				"header": [
 					{
@@ -749,7 +749,7 @@
 						"showPassword": false
 					}
 				},
-				"url": "http://{{host}}:{{port}}/MDX2JSON/Favorites/Basic Dashboard Demo.dashboard?Namespace={{ns}}",
+				"url": "http://{{host}}:{{port}}/MDX4JSON/Favorites/Basic Dashboard Demo.dashboard?Namespace={{ns}}",
 				"method": "POST",
 				"header": [
 					{
@@ -801,7 +801,7 @@
 						"showPassword": false
 					}
 				},
-				"url": "http://{{host}}:{{port}}/MDX2JSON/Config/DeepSeeWeb?Namespace={{ns}}",
+				"url": "http://{{host}}:{{port}}/MDX4JSON/Config/DeepSeeWeb?Namespace={{ns}}",
 				"method": "GET",
 				"header": [
 					{
@@ -850,7 +850,7 @@
 						"showPassword": false
 					}
 				},
-				"url": "http://{{host}}:{{port}}/MDX2JSON/Config?Namespace={{ns}}",
+				"url": "http://{{host}}:{{port}}/MDX4JSON/Config?Namespace={{ns}}",
 				"method": "POST",
 				"header": [
 					{
@@ -907,7 +907,7 @@
 						"showPassword": false
 					}
 				},
-				"url": "http://{{host}}:{{port}}/MDX2JSON/Logout",
+				"url": "http://{{host}}:{{port}}/MDX4JSON/Logout",
 				"method": "GET",
 				"header": [
 					{

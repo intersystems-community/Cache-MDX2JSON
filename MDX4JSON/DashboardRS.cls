@@ -1,57 +1,31 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25">
-<Class name="MDX2JSON.DashboardRS">
-<Description>
-Custom result set to get dashboard list, visible to user in a specific folder</Description>
-<Super>%SQL.CustomResultSet</Super>
-<TimeCreated>63943,47866.588743</TimeCreated>
+/// Custom result set to get dashboard list, visible to user in a specific folder
+Class MDX4JSON.DashboardRS Extends %SQL.CustomResultSet
+{
 
-<Parameter name="global">
-<Default>^DeepSee.FolderItemD</Default>
-</Parameter>
+Parameter global = "^DeepSee.FolderItemD";
 
-<Parameter name="dashclass">
-<Default>%DeepSee.Dashboard.Definition</Default>
-</Parameter>
+Parameter dashclass = "%DeepSee.Dashboard.Definition";
 
-<Property name="title">
-<Type>%String</Type>
-</Property>
+Property title As %String;
 
-<Property name="path">
-<Type>%String</Type>
-</Property>
+Property path As %String;
 
-<Property name="cover">
-<Type>%String</Type>
-</Property>
+Property cover As %String;
 
-<Property name="id">
-<Type>%String</Type>
-<Private>1</Private>
-</Property>
+Property id As %String [ Private ];
 
-<Property name="folder">
-<Type>%String</Type>
-<Private>1</Private>
-</Property>
+Property folder As %String [ Private ];
 
-<Method name="%OpenCursor">
-<FormalSpec>folderName:%String=""</FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
+Method %OpenCursor(folderName As %String = "") As %Status
+{
 	return:((folderName'="") && ('$IsObject(##class(%DeepSee.UserLibrary.Utils).%FindFolder(folderName)))) $$$ERROR($$$GeneralError,"Folder " _ folderName _ " does not exist")
     set ..id = ""
     set ..folder = folderName
     return $$$OK
-]]></Implementation>
-</Method>
+}
 
-<Method name="%Next">
-<FormalSpec><![CDATA[&sc:%Library.Status]]></FormalSpec>
-<PlaceAfter>%Execute</PlaceAfter>
-<ReturnType>%Integer</ReturnType>
-<Implementation><![CDATA[
+Method %Next(ByRef sc As %Library.Status) As %Integer [ PlaceAfter = %Execute ]
+{
     set sc = $$$OK
     do ..SetNextId()
     set id = ..id
@@ -59,32 +33,26 @@ Custom result set to get dashboard list, visible to user in a specific folder</D
     
     set ..title = ##class(%DeepSee.UserPortal.Utils).%ResolveText(##class(%DeepSee.UserLibrary.FolderItem).titleGetStored(id))
     set ..path =  ..GetDashFullName(id)
-    set ..cover = ##class(MDX2JSON.Dashboard).GetDashCover(##class(%DeepSee.UserLibrary.FolderItem).bookCoverGetStored(id))
+    set ..cover = ##class(MDX4JSON.Dashboard).GetDashCover(##class(%DeepSee.UserLibrary.FolderItem).bookCoverGetStored(id))
     
     return $$$YES
-]]></Implementation>
-</Method>
+}
 
-<Method name="SetNextId">
-<Description>
-Iterate over data global till we find dashboard definition
-thet satisfies all conditions</Description>
-<Implementation><![CDATA[
+/// Iterate over data global till we find dashboard definition
+/// thet satisfies all conditions
+Method SetNextId()
+{
 	set ..id = $order(@..#global@(..id))
     if ((..id'="") && ('..CheckConditions(..id))) {
 	    // we are not at the last row and we failed condition check
 	    // so we get the next id
 	    do ..SetNextId()	
     }
-]]></Implementation>
-</Method>
+}
 
-<Method name="CheckConditions">
-<Description>
-Check if element with that id satisfies our conditions</Description>
-<FormalSpec>id</FormalSpec>
-<ReturnType>%Boolean</ReturnType>
-<Implementation><![CDATA[
+/// Check if element with that id satisfies our conditions
+Method CheckConditions(id) As %Boolean
+{
 	/// first we check that it's a dashboard (not a pivot, etc.)
 	set oid = ##class(%DeepSee.UserLibrary.FolderItem).%ComposeOid(id)
     do ##class(%DeepSee.UserLibrary.FolderItem).%OnDetermineClass(oid, .class)
@@ -102,44 +70,30 @@ Check if element with that id satisfies our conditions</Description>
 	return:'..CheckItemResource(id) $$$NO
 	
 	return $$$YES
-]]></Implementation>
-</Method>
+}
 
-<Method name="GetDashFullName">
-<Description>
-Get dashboard full name by id</Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>id:%String</FormalSpec>
-<Implementation><![CDATA[
+/// Get dashboard full name by id
+ClassMethod GetDashFullName(id As %String)
+{
 	set folder = ##class(%DeepSee.UserLibrary.FolderItem).folderGetStored(id)
     set name = ##class(%DeepSee.UserLibrary.FolderItem).nameGetStored(id)
     return ##class(%DeepSee.Dashboard.Definition).fullNameCompute(id, folder, name)
-]]></Implementation>
-</Method>
+}
 
-<Method name="CheckItemResource">
-<Description>
-Test if the current user has access to this item.</Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>id:%String,privilege:%String="USE"</FormalSpec>
-<ReturnType>%Boolean</ReturnType>
-<Implementation><![CDATA[
+/// Test if the current user has access to this item.
+ClassMethod CheckItemResource(id As %String, privilege As %String = "USE") As %Boolean
+{
 	set access = $$$NO
 	set resource = ..GetItemResource(id)
 	if ((resource="")||($System.Security.Check(resource, privilege))) {
 		set access = $$$YES
 	}
 	return access
-]]></Implementation>
-</Method>
+}
 
-<Method name="GetItemResource">
-<Description>
-Get the resource value for this item.</Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>id:%String</FormalSpec>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[
+/// Get the resource value for this item.
+ClassMethod GetItemResource(id As %String) As %String
+{
 	set resource = ##class(%DeepSee.UserLibrary.FolderItem).resourceGetStored(id)
 	if (resource="") {
 		// inherit from folder
@@ -148,45 +102,32 @@ Get the resource value for this item.</Description>
 		}
 	}
 	return resource
-]]></Implementation>
-</Method>
+}
 
-<Method name="GetFolderResource">
-<Description>
-Get the resource value for this folder.</Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>folderId:%String</FormalSpec>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[
+/// Get the resource value for this folder.
+ClassMethod GetFolderResource(folderId As %String) As %String
+{
 	if (##class(%DeepSee.UserLibrary.Folder).resourceGetStored(folderId)'="") {
 		return ##class(%DeepSee.UserLibrary.Folder).resourceGetStored(folderId)
 	} elseif (##class(%DeepSee.UserLibrary.Folder).folderGetStored(folderId)'="") {
 		return ..GetFolderResource(##class(%DeepSee.UserLibrary.Folder).folderGetStored(folderId))
 	}
 	return ""
-]]></Implementation>
-</Method>
+}
 
-<Method name="Test">
-<Description>
-Get all dashes from SAMPLES namespace
-do ##class(MDX2JSON.DashboardRS).Test()</Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>folderName:%String=""</FormalSpec>
-<Implementation><![CDATA[
+/// Get all dashes from SAMPLES namespace
+/// do ##class(MDX4JSON.DashboardRS).Test()
+ClassMethod Test(folderName As %String = "")
+{
 	new $namespace
 	set $namespace = "Samples"
 	set rs = ..%New(,folderName)
 	do rs.%Display()
-]]></Implementation>
-</Method>
+}
 
-<Method name="WriteJSON">
-<Description>
- Execute query and output results as JSON</Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>folderName:%String=""</FormalSpec>
-<Implementation><![CDATA[
+///  Execute query and output results as JSON
+ClassMethod WriteJSON(folderName As %String = "")
+{
 	#define CRLF 							$c(13,10)
 	#define ZENJSISNUM(%val)				($IsValidNum(%val)&&(%val=+(%val)))
 	#define ZENJSNUM(%num)					$fnumber(%num,"LON")
@@ -213,7 +154,6 @@ do ##class(MDX2JSON.DashboardRS).Test()</Description>
         set separator = 1
     }
     write "]}"
-]]></Implementation>
-</Method>
-</Class>
-</Export>
+}
+
+}

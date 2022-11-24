@@ -1,17 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25">
-<Class name="MDX2JSON.Installer">
-<TimeCreated>63481,77165.410085</TimeCreated>
+Class MDX4JSON.Installer
+{
 
-<XData name="Install">
-<Description>
-See generated code in zsetup+1^MDX2JSON.Installer.1
-todo add optional parameter WEBAPP to Alter web app name if it needs to have another then namespace name</Description>
-<XMLNamespace>INSTALLER</XMLNamespace>
-<Data><![CDATA[
+/// See generated code in zsetup+1^MDX4JSON.Installer.1
+/// todo add optional parameter WEBAPP to Alter web app name if it needs to have another then namespace name
+XData Install [ XMLNamespace = INSTALLER ]
+{
 <Manifest>
 <IfNotDef Var="Namespace">
-<Var Name="Namespace" Value="MDX2JSON"/>
+<Var Name="Namespace" Value="MDX4JSON"/>
 <Log Text="Set namespace to ${Namespace}" Level="0"/>
 </IfNotDef>
 
@@ -20,7 +16,7 @@ todo add optional parameter WEBAPP to Alter web app name if it needs to have ano
 <Log Text="Set Import to 1" Level="0"/>
 </IfNotDef>
 
-<Role Name="MDX2JSONSettings" Description="Role to access and set default MDX2JSON settings for an App"/>
+<Role Name="MDX4JSONSettings" Description="Role to access and set default MDX4JSON settings for an App"/>
 
 <If Condition='(##class(Config.Namespaces).Exists("${Namespace}")=0)'>
 <Log Text="Creating namespace ${Namespace}" Level="0"/>
@@ -41,7 +37,7 @@ todo add optional parameter WEBAPP to Alter web app name if it needs to have ano
 </IfDef>
 <IfNotDef Var="SourceDir">
 <Log Text="SourceDir undefined - online install from GitHub" Level="0"/>
-<RunInstall Class="MDX2JSON.Installer" Method="DownloadFromGitHub"/>
+<RunInstall Class="MDX4JSON.Installer" Method="DownloadFromGitHub"/>
 </IfNotDef>
 </If>
 
@@ -49,7 +45,7 @@ todo add optional parameter WEBAPP to Alter web app name if it needs to have ano
 	<Log Text="Creating web application /${Namespace}" Level="0"/>
 	<!-- This method creates conflits with web-server. Kept for reference purposes. See ##class(%EnsembleMgr).createPortalApp()
 	<CSPApplication Url="/${Namespace}" Directory="" AuthenticationMethods="64" IsNamespaceDefault="false" />-->
-	<RunInstall Class="MDX2JSON.Installer" Method="CreateWebApp"/>
+	<RunInstall Class="MDX4JSON.Installer" Method="CreateWebApp"/>
 </If>
 </Namespace>
 
@@ -58,9 +54,9 @@ todo add optional parameter WEBAPP to Alter web app name if it needs to have ano
 <Log Text="Creating namespace %All" Level="0"/>
 <Namespace Name="%All" Create="yes" Code="IRISTEMP" Data="IRISTEMP" Ensemble="0">
 <Configuration>
-	<Log Text="Mapping MDX2JSON package to %All namespace" Level="0"/>
-	<ClassMapping From="${Namespace}" Package="MDX2JSON"/>
-	<GlobalMapping From="${Namespace}" Global="MDX2JSON"/>
+	<Log Text="Mapping MDX4JSON package to %All namespace" Level="0"/>
+	<ClassMapping From="${Namespace}" Package="MDX4JSON"/>
+	<GlobalMapping From="${Namespace}" Global="MDX4JSON"/>
 </Configuration>
 </Namespace>
 </If>
@@ -71,29 +67,29 @@ todo add optional parameter WEBAPP to Alter web app name if it needs to have ano
 <Log Text="Creating namespace %All" Level="0"/>
 <Namespace Name="%All" Create="yes" Code="CACHETEMP" Data="CACHETEMP" Ensemble="0">
 <Configuration>
-	<Log Text="Mapping MDX2JSON package to %All namespace" Level="0"/>
-	<ClassMapping From="${Namespace}" Package="MDX2JSON"/>
-	<GlobalMapping From="${Namespace}" Global="MDX2JSON"/>
+	<Log Text="Mapping MDX4JSON package to %All namespace" Level="0"/>
+	<ClassMapping From="${Namespace}" Package="MDX4JSON"/>
+	<GlobalMapping From="${Namespace}" Global="MDX4JSON"/>
 </Configuration>
 </Namespace>
 </If>
 
-<Log Text="Mapping MDX2JSON package to Samples namespace" Level="0"/>
+<Log Text="Mapping MDX4JSON package to Samples namespace" Level="0"/>
 <If Condition='##class(Config.Namespaces).Exists("Samples")'>
 <Namespace Name="Samples" Create="no" Code="SAMPLES" Data="SAMPLES" Ensemble="0">
 <Configuration>
-<ClassMapping From="${Namespace}" Package="MDX2JSON"/>
-<GlobalMapping From="${Namespace}" Global="MDX2JSON"/>
+<ClassMapping From="${Namespace}" Package="MDX4JSON"/>
+<GlobalMapping From="${Namespace}" Global="MDX4JSON"/>
 </Configuration>
 </Namespace>
 </If>
 </If>
 
-<!--<RunInstall Class="MDX2JSON.Installer" Method="createrole" />-->
+<!--<RunInstall Class="MDX4JSON.Installer" Method="createrole" />-->
 
 <IfDef Var="User" >
 <IfDef Var="Password">
-<User Username="${User}" Namespace="${Namespace}" PasswordVar="Password" Roles="MDX2JSON" Enabled="true" Comment="MDX2JSON user" Fullname="MDX2JSON user"/>
+<User Username="${User}" Namespace="${Namespace}" PasswordVar="Password" Roles="MDX4JSON" Enabled="true" Comment="MDX4JSON user" Fullname="MDX4JSON user"/>
 </IfDef>
 <IfNotDef Var="Password">
 <Log Text="You specified username but not a password" Level="0"/>
@@ -101,33 +97,23 @@ todo add optional parameter WEBAPP to Alter web app name if it needs to have ano
 </IfDef>
 
 </Manifest>
-]]></Data>
-</XData>
+}
 
-<Method name="setup">
-<Description>
-This is a method generator whose code is generated by XGL.
-Main setup method
-Set pVars("User")="web"
-Set pVars("Password")="dsweb"
-Set pVars("Namespace")="TEMP3"
-Set pVars("Import")=1
-Set pVars("SourceDir")="C:\temp\MDX2JSON\MDX2JSON"
-Do ##class(MDX2JSON.Installer).setup(.pVars)</Description>
-<Internal>1</Internal>
-<ClassMethod>1</ClassMethod>
-<CodeMode>objectgenerator</CodeMode>
-<FormalSpec><![CDATA[&pVars,pLogLevel:%Integer=0,pInstaller:%Installer.Installer]]></FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[ 	Quit ##class(%Installer.Manifest).%Generate(%compiledclass, %code, "Install")
-]]></Implementation>
-</Method>
+/// This is a method generator whose code is generated by XGL.
+/// Main setup method
+/// Set pVars("User")="web"
+/// Set pVars("Password")="dsweb"
+/// Set pVars("Namespace")="TEMP3"
+/// Set pVars("Import")=1
+/// Set pVars("SourceDir")="C:\temp\MDX4JSON\MDX4JSON"
+/// Do ##class(MDX4JSON.Installer).setup(.pVars)
+ClassMethod setup(ByRef pVars, pLogLevel As %Integer = 0, pInstaller As %Installer.Installer) As %Status [ CodeMode = objectgenerator, Internal ]
+{
+ 	Quit ##class(%Installer.Manifest).%Generate(%compiledclass, %code, "Install")
+}
 
-<Method name="CreateWebApp">
-<ClassMethod>1</ClassMethod>
-<FormalSpec>pVars,pLogLevel,tInstaller</FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
+ClassMethod CreateWebApp(pVars, pLogLevel, tInstaller) As %Status
+{
 	Set Namespace=tInstaller.Evaluate("${Namespace}")
 	Do tInstaller.PushNS("%SYS")
 	Do ##class(Security.System).GetInstallationSecuritySetting(.security)
@@ -138,47 +124,38 @@ Do ##class(MDX2JSON.Installer).setup(.pVars)</Description>
 	}
 	Set cspProperties("NameSpace") = Namespace
 	Set cspProperties("IsNameSpaceDefault") = $$$YES
-	Set cspProperties("DispatchClass") = "MDX2JSON.REST"
+	Set cspProperties("DispatchClass") = "MDX4JSON.REST"
 	Set tSC = ##class(Security.Applications).Create("/"_Namespace, .cspProperties)
 	Do tInstaller.PopNS()
 	If $$$ISERR(tSC) Throw ##class(%Installer.Exception).CreateFromStatus(tSC)
 	Quit $$$OK
-]]></Implementation>
-</Method>
+}
 
-<Method name="DownloadFromGitHub">
-<ClassMethod>1</ClassMethod>
-<FormalSpec>pVars,pLogLevel,tInstaller</FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
+ClassMethod DownloadFromGitHub(pVars, pLogLevel, tInstaller) As %Status
+{
 	Set Namespace=tInstaller.Evaluate("${Namespace}")
 	Do tInstaller.PushNS("%SYS")
-	Set tSC = ..Update(Namespace, "intersystems-ru", "Cache-MDX2JSON", "master")
+	Set tSC = ..Update(Namespace, "intersystems-ru", "Cache-MDX4JSON", "master")
 	Do tInstaller.PopNS()
 	If $$$ISERR(tSC) Throw ##class(%Installer.Exception).CreateFromStatus(tSC)
 	quit $$$OK
-]]></Implementation>
-</Method>
+}
 
-<Method name="Update">
-<Description><![CDATA[
-Downloads and compiles GitHub repository.<br>
- <b>Owner</b> - The name of the repository owner.<br>
- <b>Repository</b> - The name of the repository.<br>
- <b>Branch</b> - The name of the commit/branch/tag. If skipped the repository’s default branch (usually master) would be used.<br>
- <b>Username</b> - GitHub user, who has access to repository. Optional for public repositories.<br>
- <b>Password</b> - GitHub password, corresponding to Username. Optional for public repositories.<br>
- Note, that with Username, you can make up to 5,000 requests per hour.
- For unauthenticated requests, the rate limit allows to make up to 60 requests per hour.
- Unauthenticated requests are associated with an IP address.<br>
- <b>Namespace</b> - Namespace, where to download and compile repository.<br>
-
- For example in the repository: https://github.com/intersystems-ru/Cache-MDX2JSON<br>
- Owner - intersystems-ru, Repository - Cache-MDX2JSON.<br> ]]></Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>Namespace=$Namespace,Owner:%String="intersystems-ru",Repository:%String="Cache-MDX2JSON",Branch:%String,Username:%String,Password:%String</FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
+/// Downloads and compiles GitHub repository.<br>
+///  <b>Owner</b> - The name of the repository owner.<br>
+///  <b>Repository</b> - The name of the repository.<br>
+///  <b>Branch</b> - The name of the commit/branch/tag. If skipped the repository’s default branch (usually master) would be used.<br>
+///  <b>Username</b> - GitHub user, who has access to repository. Optional for public repositories.<br>
+///  <b>Password</b> - GitHub password, corresponding to Username. Optional for public repositories.<br>
+///  Note, that with Username, you can make up to 5,000 requests per hour.
+///  For unauthenticated requests, the rate limit allows to make up to 60 requests per hour.
+///  Unauthenticated requests are associated with an IP address.<br>
+///  <b>Namespace</b> - Namespace, where to download and compile repository.<br>
+/// 
+///  For example in the repository: https://github.com/intersystems-ru/Cache-MDX4JSON<br>
+///  Owner - intersystems-ru, Repository - Cache-MDX4JSON.<br> 
+ClassMethod Update(Namespace = {$Namespace}, Owner As %String = "intersystems-ru", Repository As %String = "Cache-MDX4JSON", Branch As %String, Username As %String, Password As %String) As %Status
+{
 	Set namespace = $Namespace
  	Set SSLConfig = "GitHub"
 
@@ -208,19 +185,14 @@ Downloads and compiles GitHub repository.<br>
 	Zn namespace
 
  	Return $$$ADDSC(st, st2)
-]]></Implementation>
-</Method>
+}
 
-<Method name="ProcessDirectory">
-<Description><![CDATA[
-Process one directory of GitHub repository. Recursive.<br>
-<b>Path</b> -Internal repository path. Root is empty string<br>
-<b>Request</b> - Authenticated/Set %Net.HttpRequest object.<br>
-<b>Links</b> - List of links to raw files (which satisfy <b>IsCacheFile</b> conditions) from repository.<br>]]></Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec><![CDATA[Path:%String="",Request:%Net.HttpRequest,&Links:%ListOfDataTypes]]></FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
+/// Process one directory of GitHub repository. Recursive.<br>
+/// <b>Path</b> -Internal repository path. Root is empty string<br>
+/// <b>Request</b> - Authenticated/Set %Net.HttpRequest object.<br>
+/// <b>Links</b> - List of links to raw files (which satisfy <b>IsCacheFile</b> conditions) from repository.<br>
+ClassMethod ProcessDirectory(Path As %String = "", Request As %Net.HttpRequest, ByRef Links As %ListOfDataTypes) As %Status
+{
 	Set location = Request.Location
 	Set Request.Location = Request.Location _ Path
 
@@ -248,34 +220,24 @@ Process one directory of GitHub repository. Recursive.<br>
 	}
 	Set Request.Location = location // to keep track of where in the repository tree we are
 	Return $$$OK
-]]></Implementation>
-</Method>
+}
 
-<Method name="IsCacheFile">
-<Description>
-Check that incoming file is the one you need.</Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>File:%ZEN.proxyObject</FormalSpec>
-<ReturnType>%Boolean</ReturnType>
-<Implementation><![CDATA[
+/// Check that incoming file is the one you need.
+ClassMethod IsCacheFile(File As %ZEN.proxyObject) As %Boolean
+{
 	Set extensions = ",xml,cls,csp,csr,mac,int,bas,inc,gbl,prj,obj,pkg,gof,"
 	Return:($L(File.name,".")=1) 0 //no extension
         Return:File.name["module.xml" 0 // ZPM skip
 	Set File.Extension = $P(File.name,".",$L(File.name,"."))
 	Return $F(extensions,","_$ZCVT(File.Extension,"l")_",")
-]]></Implementation>
-</Method>
+}
 
-<Method name="DownloadFiles">
-<Description><![CDATA[
-Download list of files on https://raw.githubusercontent.com/ server.<br>
-<b>Links</b> - List of links to raw files.<br>
-<b>Request</b> - Authenticated/Set %Net.HttpRequest object.<br>
-<b>loadedlist</b> - Returns an array of the items loaded. ]]></Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>Links:%ListOfDataTypes,Request:%Net.HttpRequest,*Items</FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
+/// Download list of files on https://raw.githubusercontent.com/ server.<br>
+/// <b>Links</b> - List of links to raw files.<br>
+/// <b>Request</b> - Authenticated/Set %Net.HttpRequest object.<br>
+/// <b>loadedlist</b> - Returns an array of the items loaded. 
+ClassMethod DownloadFiles(Links As %ListOfDataTypes, Request As %Net.HttpRequest, Output Items) As %Status
+{
 	Kill Items
 	Set Request.Server = "raw.githubusercontent.com"
 	Set st = $$$OK
@@ -299,50 +261,36 @@ Download list of files on https://raw.githubusercontent.com/ server.<br>
 
 	Set Request.Server="api.github.com"
 	Return st
-]]></Implementation>
-</Method>
+}
 
-<Method name="Uninstall">
-<Description>
-Wrapper method. Uninstalls MDX2JSON (deletes MDX2JSON and %All namespaces, DBs, web apps)</Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>NamespaceList="%All,MDX2JSON"</FormalSpec>
-<Implementation><![CDATA[
+/// Wrapper method. Uninstalls MDX4JSON (deletes MDX4JSON and %All namespaces, DBs, web apps)
+ClassMethod Uninstall(NamespaceList = "%All,MDX4JSON")
+{
 	For i=1:1:$L(NamespaceList,",") {
 		Set Namespace = $P(NamespaceList,",",i)
 		Write "Start deleting " _ Namespace,!
 		Write $System.Status.GetErrorText(..DeleteNamespace(Namespace))
 		Write "End deleting " _ Namespace,!
 		Write "Start deleting roles",!
-		Write $System.Status.GetErrorText(..DeleteAccess("%DB_MDX2JSON"))
+		Write $System.Status.GetErrorText(..DeleteAccess("%DB_MDX4JSON"))
 		Write "End deleting roles"
 	}
-]]></Implementation>
-</Method>
+}
 
-<Method name="DeleteAccess">
-<Description><![CDATA[
-Delete <var>Role</var> (and resource)]]></Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>Role="%DB_MDX2JSON"</FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
+/// Delete <var>Role</var> (and resource)
+ClassMethod DeleteAccess(Role = "%DB_MDX4JSON") As %Status
+{
 	New $Namespace
 	Set $Namespace = "%SYS"
 	Set st = $$$OK
 	Set st = ##class(Security.Resources).Delete(Role)
 	Set st = $$$ADDSC(st, ##class(Security.Roles).Delete(Role))
 	Return st
-]]></Implementation>
-</Method>
+}
 
-<Method name="DeleteNamespace">
-<Description><![CDATA[
-Delete <var>Namespace</var>, related web apps and databases]]></Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>Namespace=$Namespace</FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
+/// Delete <var>Namespace</var>, related web apps and databases
+ClassMethod DeleteNamespace(Namespace = {$Namespace}) As %Status
+{
 	// Based on %CSP.UI.Portal.Dialog.NamespaceDelete:SaveData and 
 	// %CSP.UI.Portal.Dialog.DatabaseDelete:Delete
 	Try {
@@ -385,16 +333,11 @@ Delete <var>Namespace</var>, related web apps and databases]]></Description>
 		Set st =  $$$ADDSC(st, ex.AsStatus())
 	}
 	Return st
-]]></Implementation>
-</Method>
+}
 
-<Method name="DeleteDatabase">
-<Description><![CDATA[
-Delete all webapps in a <var>Namespace</var>, also dele]]></Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>Database:%String="MDX2JSON"</FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
+/// Delete all webapps in a <var>Namespace</var>, also dele
+ClassMethod DeleteDatabase(Database As %String = "MDX4JSON") As %Status
+{
 	New $Namespace
 	Set $Namespace = "%SYS"
 	Set st = $$$OK
@@ -416,16 +359,11 @@ Delete all webapps in a <var>Namespace</var>, also dele]]></Description>
 		Set st = $$$ADDSC(st ,ex.AsStatus())
 	}
 	Return st
-]]></Implementation>
-</Method>
+}
 
-<Method name="DeleteWebApps">
-<Description><![CDATA[
-Delete all webapps in a <var>Namespace</var>, also dele]]></Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>Namespace:%String="MDX2JSON",ClearPath:%Boolean=0</FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
+/// Delete all webapps in a <var>Namespace</var>, also dele
+ClassMethod DeleteWebApps(Namespace As %String = "MDX4JSON", ClearPath As %Boolean = 0) As %Status
+{
 	New $Namespace
 	Set $Namespace = "%SYS"
 	Set st = $$$OK
@@ -444,16 +382,11 @@ Delete all webapps in a <var>Namespace</var>, also dele]]></Description>
 		Set st = $$$ADDSC(st, ex.AsStatus())
 	}
 	Return st
-]]></Implementation>
-</Method>
+}
 
-<Method name="DeletePackageMappings">
-<Description><![CDATA[
-Delete all mappings of <var>Package</var> in <var>Database</var> from all Namespaces]]></Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>Package:%String="",Database:%String="MDX2JSON"</FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
+/// Delete all mappings of <var>Package</var> in <var>Database</var> from all Namespaces
+ClassMethod DeletePackageMappings(Package As %String = "", Database As %String = "MDX4JSON") As %Status
+{
 	New $Namespace
 	Set $Namespace = "%SYS"
 	Set st = $$$OK
@@ -470,16 +403,11 @@ Delete all mappings of <var>Package</var> in <var>Database</var> from all Namesp
 		Set st = $$$ADDSC(st, ex.AsStatus())
 	}
 	Return st
-]]></Implementation>
-</Method>
+}
 
-<Method name="DeleteGlobalMappings">
-<Description><![CDATA[
-Delete all mappings of <var>Global</var> in <var>Database</var> from all Namespaces]]></Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>Global:%String="",Database:%String="MDX2JSON"</FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
+/// Delete all mappings of <var>Global</var> in <var>Database</var> from all Namespaces
+ClassMethod DeleteGlobalMappings(Global As %String = "", Database As %String = "MDX4JSON") As %Status
+{
 	New $Namespace
 	Set $Namespace = "%SYS"
 	Set st = $$$OK
@@ -496,16 +424,11 @@ Delete all mappings of <var>Global</var> in <var>Database</var> from all Namespa
 		Set st = $$$ADDSC(st, ex.AsStatus())
 	}
 	Return st
-]]></Implementation>
-</Method>
+}
 
-<Method name="ActivateConfiguration">
-<Description><![CDATA[
-Activate a configuration in a <var>Namespace</var>]]></Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>Namespace:%String</FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
+/// Activate a configuration in a <var>Namespace</var>
+ClassMethod ActivateConfiguration(Namespace As %String) As %Status
+{
 	Set st = $$$OK
 	Set Namespace=$ZCVT(Namespace,"U")
 	
@@ -515,7 +438,6 @@ Activate a configuration in a <var>Namespace</var>]]></Description>
 	Return:$$$ISERR(st) st
  	Set st = ##Class(Config.Namespaces).Load(Namespace)
 	Return st
-]]></Implementation>
-</Method>
-</Class>
-</Export>
+}
+
+}

@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1 (Build 656U)" ts="2016-07-30 12:25:42">
-<Routine name="MDX2JSON.MDX2JSON" type="INC" timestamp="64128,34461.753456"><![CDATA[
+ROUTINE MDX4JSON.MDX4JSON [Type=INC]
 #include %occErrors
 #include %ZEN.Utils
 #include %DeepSee
@@ -11,11 +9,11 @@
 #define R(%property) %request.Content.##Expression(%property)
 #define Public ((%request.GetCgiEnv("SERVER_PORT") = 80) || (%request.GetCgiEnv("SERVER_PORT") = 443))
 #define Private '$$$Public
-#define Global ^MDX2JSON
+#define Global ^MDX4JSON
 #define Settings "Settings"
 #define Features "Features"
 #define DefaultUser "DeepSeeWeb"
-#define DefaultSettingsRole "MDX2JSONSettings"
+#define DefaultSettingsRole "MDX4JSONSettings"
 
 #; For work with dynamic objects
 #if (($$$comClassDefined("%Library.AbstractObject"))&&($get($$$Global($$$Features))["newjson"))
@@ -43,5 +41,3 @@
 #endif
 #define IsNewJSON ##Expression($$$comClassDefined("%Library.AbstractObject"))
 #define JSONEnabled ($get($$$Global($$$Features))["newjson")
-]]></Routine>
-</Export>

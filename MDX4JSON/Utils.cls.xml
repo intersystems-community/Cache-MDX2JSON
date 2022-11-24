@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Export generator="Cache" version="25">
-<Class name="MDX2JSON.Utils">
+<Class name="MDX4JSON.Utils">
 <Description><![CDATA[
-Utility class, wrappers for processing of MDX queries in <b>MDX2JSON.ResultSet</b>.
+Utility class, wrappers for processing of MDX queries in <b>MDX4JSON.ResultSet</b>.
 Outputs JSON, JSONP and XML/A.<br>
 Also has functionality for getting information about cubes, dashboards and widgets.]]></Description>
-<IncludeCode>MDX2JSON.MDX2JSON</IncludeCode>
+<IncludeCode>MDX4JSON.MDX4JSON</IncludeCode>
 <TimeCreated>63165,65653.547419</TimeCreated>
 
 <Method name="GetResultSet">
 <Description><![CDATA[
-Transforms MDX query into executed <b>MDX2JSON.ResultSet</b>.<br>
+Transforms MDX query into executed <b>MDX4JSON.ResultSet</b>.<br>
 <b>MDX</b> - String containing MDX query.<br>
 <b>Status</b> - Status of query execution.<br>]]></Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>MDX:%String,*Status</FormalSpec>
-<ReturnType>MDX2JSON.ResultSet</ReturnType>
+<ReturnType>MDX4JSON.ResultSet</ReturnType>
 <Implementation><![CDATA[
 	set Status = $$$OK
-	set RS = ##class(MDX2JSON.ResultSet).%New()
+	set RS = ##class(MDX4JSON.ResultSet).%New()
 	set Status = RS.%PrepareMDX(MDX)
 	return RS
 ]]></Implementation>
@@ -26,15 +26,15 @@ Transforms MDX query into executed <b>MDX2JSON.ResultSet</b>.<br>
 
 <Method name="GetResultSetFromQuery">
 <Description><![CDATA[
-Transforms MDX query into executed <b>MDX2JSON.ResultSet</b>.<br>
+Transforms MDX query into executed <b>MDX4JSON.ResultSet</b>.<br>
 <b>MDX</b> - String containing MDX query.<br>
 <b>Status</b> - Status of query execution.<br>]]></Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>CubeKey:%String,QueryKey:%String,*Status</FormalSpec>
-<ReturnType>MDX2JSON.ResultSet</ReturnType>
+<ReturnType>MDX4JSON.ResultSet</ReturnType>
 <Implementation><![CDATA[
 	set Status = $$$OK
-	set RS = ##class(MDX2JSON.ResultSet).%New()
+	set RS = ##class(MDX4JSON.ResultSet).%New()
 	set Status = RS.%PrepareKey(CubeKey, QueryKey)
 	return:$$$ISERR(Status) RS
 	
@@ -45,7 +45,7 @@ Transforms MDX query into executed <b>MDX2JSON.ResultSet</b>.<br>
 
 <Method name="ExecuteResultSet">
 <ClassMethod>1</ClassMethod>
-<FormalSpec>RS:MDX2JSON.ResultSet,QueryKey:%String="",Timeout:%Integer=0</FormalSpec>
+<FormalSpec>RS:MDX4JSON.ResultSet,QueryKey:%String="",Timeout:%Integer=0</FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	set Params = ""
@@ -77,7 +77,7 @@ Automatic processing of MDX query and outputting resulting JSON.<br>
 <FormalSpec>MDX:%String,Timeout:%Integer=0</FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
-	#dim RS As MDX2JSON.ResultSet
+	#dim RS As MDX4JSON.ResultSet
 	set RS = ..GetResultSet(MDX, .st)
 	return:$$$ISERR(st) st
 	
@@ -100,7 +100,7 @@ Automatic processing of MDX query and outputting resulting JSON.<br>
 <FormalSpec>CubeKey:%String,QueryKey:%String,Timeout:%Integer=0</FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
-	#dim RS As MDX2JSON.ResultSet
+	#dim RS As MDX4JSON.ResultSet
 	set RS = ..GetResultSetFromQuery(CubeKey, QueryKey, .st)
 	return:$$$ISERR(st) st
 
@@ -266,7 +266,7 @@ Get information about pivot. <br>
 			return:($$$ISERR(st)) st
 			
 			if (dataSource.mdx="") {
-				set st = ##class(MDX2JSON.Dashboard).GetMdx(pDataSource, .mdx, .basemdx)
+				set st = ##class(MDX4JSON.Dashboard).GetMdx(pDataSource, .mdx, .basemdx)
 				return:($$$ISERR(st)) st
 				set dataSource.mdx = mdx
 			}
@@ -295,7 +295,7 @@ Opens DeepSee pivot by it's name. Returns status of atempt to locate and open pi
 	 kill Pivot
 	 
 	 set id = ""
-	 set global = ##class(MDX2JSON.DashboardRS).#global
+	 set global = ##class(MDX4JSON.DashboardRS).#global
 	 set pivotclass = "%DeepSee.Dashboard.Pivot"
 	 for {
 	 	set id = $order(@global@(id))
@@ -356,13 +356,13 @@ Using dashboard name get JSON representation (array of ("type","title","mdx")) o
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	try {
-		set st = ##class(MDX2JSON.Dashboard).OpenDashboardByName(pDashName, .dash)
+		set st = ##class(MDX4JSON.Dashboard).OpenDashboardByName(pDashName, .dash)
 		return:($$$ISERR(st)) st
 		
 		set canaaccess = dash.%CheckResource()
 		return:canaaccess=0 $$$ERROR($$$GeneralError,"Access denied to " _ pDashName)
 		
-		set st = ##class(MDX2JSON.Dashboard).WidgetsToProxyObject(dash, .widgetlist)
+		set st = ##class(MDX4JSON.Dashboard).WidgetsToProxyObject(dash, .widgetlist)
 		return:($$$ISERR(st)) st
 		w "" // weird hack required for 15.3
 		$$$DynObjToJSON(widgetlist)
@@ -383,10 +383,10 @@ Using dashboard name get JSON representation of all its' widgets and filters.<br
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	try {
-		set st = ##class(MDX2JSON.DashboardFilters).OpenDashboardByName(pDashName, .dash)
+		set st = ##class(MDX4JSON.DashboardFilters).OpenDashboardByName(pDashName, .dash)
 		return:($$$ISERR(st)) st
 		
-		set st = ##class(MDX2JSON.DashboardFilters).WidgetsToProxyObject(dash, .widgetlist)
+		set st = ##class(MDX4JSON.DashboardFilters).WidgetsToProxyObject(dash, .widgetlist)
 		return:($$$ISERR(st)) st
 		w "" // weird hack required for 15.3
 		$$$DynObjToJSON(widgetlist)
@@ -518,7 +518,7 @@ See correspontding method from DeepSee.REST.v1.InfoServer ]]></Description>
 <Method name="CreateAddonClass">
 <Description>
 Create class for an addon
-w ##class(MDX2JSON.Utils).CreateAddonClass("DSW.Addon.A")</Description>
+w ##class(MDX4JSON.Utils).CreateAddonClass("DSW.Addon.A")</Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>Class:%Dictionary.CacheClassname</FormalSpec>
 <ReturnType>%Status</ReturnType>
@@ -527,8 +527,8 @@ w ##class(MDX2JSON.Utils).CreateAddonClass("DSW.Addon.A")</Description>
 	
 	set classObj = ##class(%Dictionary.ClassDefinition).%New(Class)
 	set classObj.Super = "%DeepSee.Component.Portlet.abstractPortlet"
-	set classObj.GeneratedBy = "MDX2JSON and DeepSeeWeb"
-	set classObj.Description = "Portlet for MDX2JSON and DeepSeeWeb. Autogenerated. Do not edit."
+	set classObj.GeneratedBy = "MDX4JSON and DeepSeeWeb"
+	set classObj.Description = "Portlet for MDX4JSON and DeepSeeWeb. Autogenerated. Do not edit."
 	
 	set propertyObj = ##class(%Dictionary.PropertyDefinition).%New(Class _ ":Data")
 	set propertyObj.Type = "%String"

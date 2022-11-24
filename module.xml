@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Export generator="Cache" version="25">
-<Document name="MDX2JSON.ZPM"><Module>
- <Name>MDX2JSON</Name>
+<Document name="MDX4JSON.ZPM"><Module>
+ <Name>MDX4JSON</Name>
   <Version>3.0.0</Version>
   <Description>RESTful web api for MDX to JSON transformation (plus JSONP and XML/A) for InterSystems IRIS. Also provides information about DeepSee objects.</Description>
   <Packaging>module</Packaging>
   <SourcesRoot>./</SourcesRoot> 
-  <Resource Name="MDX2JSON.PKG"/> 
+  <Resource Name="MDX4JSON.PKG"/> 
   <CSPApplication 
-    Path="/MDX2JSON" 
-    Url="/MDX2JSON" 
-    CookiePath="/MDX2JSON/"
+    Path="/MDX4JSON" 
+    Url="/MDX4JSON" 
+    CookiePath="/MDX4JSON/"
     PasswordAuthEnabled="1"
     UnauthenticatedEnabled="1"
-    DispatchClass="MDX2JSON.REST" 
+    DispatchClass="MDX4JSON.REST" 
     />
 </Module>
 </Document></Export>

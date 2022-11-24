@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Export generator="Cache" version="25">
-<Class name="MDX2JSON.REST">
+<Class name="MDX4JSON.REST">
 <Description><![CDATA[
-Class for REST-like web api for MDX2JSON transformation (and XML/A).<br>
-Example: send HTTP POST request to web application with Dispatch class <b>MDX2JSON.REST</b>
+Class for REST-like web api for MDX4JSON transformation (and XML/A).<br>
+Example: send HTTP POST request to web application with Dispatch class <b>MDX4JSON.REST</b>
 with body: { "MDX":"QUERY" }, where QUERY is a correct MDX statement, ex:  <br>
 {<br>
 		"MDX": "SELECT NON EMPTY [Product].[P1].[Product Category].Members ON 0,NON EMPTY [Outlet].[H1].[Region].Members ON 1 FROM [HoleFoods]"<br>
@@ -32,14 +32,14 @@ To get information about pivot:<br><ul>
 To get information about system-wide defaults (format):<br><ul>
 		<li>webapplication/Format - to get info about system-wide defaults (format). GET request </li> </ul>
 
-You can add a param Namespace to request to execute MDX in desired namespace (MDX2JSON package must be mapped to that namespace):<br>
+You can add a param Namespace to request to execute MDX in desired namespace (MDX4JSON package must be mapped to that namespace):<br>
 webapplication/MDX?Namespace=Samples<br>
 
-Example: send HTTP GET request to web application with Dispatch class <b>MDX2JSON.REST</b> and URL:<br>
+Example: send HTTP GET request to web application with Dispatch class <b>MDX4JSON.REST</b> and URL:<br>
 /FilterValues/HoleFoods/[DateOfSale].[Actual].[MonthSold] -  to get information about possible values of [DateOfSale].[Actual].[MonthSold] in HoleFoods Cube.<br>
 ]]></Description>
-<IncludeCode>MDX2JSON.MDX2JSON</IncludeCode>
-<Super>MDX2JSON.AbstractREST</Super>
+<IncludeCode>MDX4JSON.MDX4JSON</IncludeCode>
+<Super>MDX4JSON.AbstractREST</Super>
 <TimeCreated>63165,65257.8179</TimeCreated>
 
 <XData name="UrlMap">
@@ -49,7 +49,7 @@ Example: send HTTP GET request to web application with Dispatch class <b>MDX2JSO
 
    <Route Url="/MDX" Method="POST" Call="WriteJSONfromMDX"/>
    <Route Url="/CancelQuery/:CubeKey/:QueryKey" Method="GET" Call="%DeepSee.ResultSet:%CancelQuery"/>
-   <Route Url="/MDX2JSONP" Method="POST" Call="WriteJSONPfromMDX"/>
+   <Route Url="/MDX4JSONP" Method="POST" Call="WriteJSONPfromMDX"/>
    <Route Url="/MDXDrillthrough" Method="POST" Call="WriteDrillthroughJSON" />
    <Route Url="/MDX2XMLA" Method="POST" Call="WriteXMLAfromMDX" />
 
@@ -123,11 +123,12 @@ Test method, outputs <b>%request</b>, <b>%response</b> and <b>%session</b> objec
 <Implementation><![CDATA[
 	set obj = ##class(%ZEN.proxyObject).%New()
 	set obj.Status = "OK"
-	set obj.Embed = $g(^MDX2JSON.Embed, $g(^%MDX2JSON.Embed, ""))
-	set obj.User = $Username
+	set obj.Embed = $g(^MDX4JSON.Embed, $g(^%MDX4JSON.Embed, ""))
+	<!-- set obj.User = $Username -->
+	set obj.User = "Teccod"
 	set obj.Version = "2.3.5"
-	set obj.Parent = ##class(MDX2JSON.Tests).#LastCommit
-	set obj.ParentTS = ##class(MDX2JSON.Tests).#LastCommitTS
+	set obj.Parent = ##class(MDX4JSON.Tests).#LastCommit
+	set obj.ParentTS = ##class(MDX4JSON.Tests).#LastCommitTS
 	set obj.DefaultApp = $System.CSP.GetDefaultApp($Namespace)
 	set obj.Mappings = ..GetMappings()
 	if $$$Debug {
@@ -147,34 +148,34 @@ Test method, outputs <b>%request</b>, <b>%response</b> and <b>%session</b> objec
 <Method name="GetDataSource">
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[	return ##class(MDX2JSON.Utils).GetDataSource($$$R("DataSource"))
+<Implementation><![CDATA[	return ##class(MDX4JSON.Utils).GetDataSource($$$R("DataSource"))
 ]]></Implementation>
 </Method>
 
 <Method name="GetTermList">
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[	return ##class(MDX2JSON.Utils).GetTermList($$$R("TermList"))
+<Implementation><![CDATA[	return ##class(MDX4JSON.Utils).GetTermList($$$R("TermList"))
 ]]></Implementation>
 </Method>
 
 <Method name="GetWidgetsList">
 <Description><![CDATA[
-Wrapper for ##class(MDX2JSON.Utils).GetWidgetsList()<br>
+Wrapper for ##class(MDX4JSON.Utils).GetWidgetsList()<br>
 Converts incoming request object (JSON: {Dashboard:"Dashboard Full Name"} and calls abovementioned method.]]></Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[	return ##class(MDX2JSON.Utils).GetWidgetsList($$$R("Dashboard"))
+<Implementation><![CDATA[	return ##class(MDX4JSON.Utils).GetWidgetsList($$$R("Dashboard"))
 ]]></Implementation>
 </Method>
 
 <Method name="GetDashboard">
 <Description><![CDATA[
-Wrapper for ##class(MDX2JSON.Utils).GetDashboard()<br>
+Wrapper for ##class(MDX4JSON.Utils).GetDashboard()<br>
 Converts incoming request object (JSON: {Dashboard:"Dashboard Full Name"} and calls abovementioned method.]]></Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[	return ##class(MDX2JSON.Utils).GetDashboard($$$R("Dashboard"))
+<Implementation><![CDATA[	return ##class(MDX4JSON.Utils).GetDashboard($$$R("Dashboard"))
 ]]></Implementation>
 </Method>
 
@@ -188,11 +189,11 @@ Returns JSON array of (title, path) for all dashboards in namespace (accessible 
 	if %request.Method = "POST" {
 		set folderName = $$$R("Folder")
 	} else {
-		set folderName = ##class(MDX2JSON.Dashboard).#folderName
+		set folderName = ##class(MDX4JSON.Dashboard).#folderName
 	}
 
 	try {
-		do ##class(MDX2JSON.DashboardRS).WriteJSON(folderName)
+		do ##class(MDX4JSON.DashboardRS).WriteJSON(folderName)
 	} catch ex {
 		set st = ex.AsStatus()
 	}
@@ -202,17 +203,17 @@ Returns JSON array of (title, path) for all dashboards in namespace (accessible 
 
 <Method name="WriteDrillthroughJSON">
 <Description><![CDATA[
-Wrapper for ##class(MDX2JSON.Utils).WriteDrillthroughJSON(pMDX).<br>
+Wrapper for ##class(MDX4JSON.Utils).WriteDrillthroughJSON(pMDX).<br>
 Converts incoming request object and calls abovementioned method.]]></Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[	return ##class(MDX2JSON.Utils).WriteDrillthroughJSON($$$R("MDX"))
+<Implementation><![CDATA[	return ##class(MDX4JSON.Utils).WriteDrillthroughJSON($$$R("MDX"))
 ]]></Implementation>
 </Method>
 
 <Method name="WriteJSONfromMDXURL">
 <Description>
-Wrapper for ##class(MDX2JSON.Utils).WriteJSONPfromMDX(pMDX)
+Wrapper for ##class(MDX4JSON.Utils).WriteJSONPfromMDX(pMDX)
 Do not use.</Description>
 <Internal>1</Internal>
 <ClassMethod>1</ClassMethod>
@@ -220,14 +221,14 @@ Do not use.</Description>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	set MDX = $ZCONVERT($ZCONVERT(MDX ,"I","URL") ,"I","UTF8")
-  	set st = ##class(MDX2JSON.Utils).WriteJSONfromMDX(MDX)
+  	set st = ##class(MDX4JSON.Utils).WriteJSONfromMDX(MDX)
   	return st
 ]]></Implementation>
 </Method>
 
 <Method name="WriteFiltersForMDX">
 <Description>
-Wrapper for ##class(MDX2JSON.Utils).WriteFiltersForMDX(pMDX)
+Wrapper for ##class(MDX4JSON.Utils).WriteFiltersForMDX(pMDX)
 Do not use.</Description>
 <Internal>1</Internal>
 <ClassMethod>1</ClassMethod>
@@ -235,14 +236,14 @@ Do not use.</Description>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	set MDX = $ZCONVERT($ZCONVERT(MDX ,"I","URL") ,"I","UTF8")
-	set st = ##class(MDX2JSON.Utils).WriteFiltersForMDX(MDX)
+	set st = ##class(MDX4JSON.Utils).WriteFiltersForMDX(MDX)
 	return st
 ]]></Implementation>
 </Method>
 
 <Method name="WriteFiltersForDataSource">
 <Description>
-Wrapper for ##class(MDX2JSON.Utils).WriteFiltersForDataSource(pDataSource, pValues, pSearchKey)</Description>
+Wrapper for ##class(MDX4JSON.Utils).WriteFiltersForDataSource(pDataSource, pValues, pSearchKey)</Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
@@ -260,14 +261,14 @@ Wrapper for ##class(MDX2JSON.Utils).WriteFiltersForDataSource(pDataSource, pValu
 		}
 	}
 
-   	set st = ##class(MDX2JSON.Utils).WriteFiltersForDataSource(DataSource, Values, Search, .RelatedFilters, RequestedFilters)
+   	set st = ##class(MDX4JSON.Utils).WriteFiltersForDataSource(DataSource, Values, Search, .RelatedFilters, RequestedFilters)
   	return st
 ]]></Implementation>
 </Method>
 
 <Method name="WriteJSONfromMDX">
 <Description><![CDATA[
-Wrapper for ##class(MDX2JSON.Utils).WriteJSONPfromMDX(pMDX)<br>
+Wrapper for ##class(MDX4JSON.Utils).WriteJSONPfromMDX(pMDX)<br>
 Converts incoming request object and calls abovementioned method.]]></Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
@@ -281,13 +282,13 @@ Converts incoming request object and calls abovementioned method.]]></Descriptio
 		
 		if engine = "DeepSeeREST" {
 			// DeepSeeREST engine for MDX->JSON transformation. Only in 15.3+
-			set st = ##class(MDX2JSON.Utils).WriteJSONfromMDXNew(mdx)
+			set st = ##class(MDX4JSON.Utils).WriteJSONfromMDXNew(mdx)
 		} else {
-			// Default MDX2JSON engine. 14.1+
+			// Default MDX4JSON engine. 14.1+
 			if mdx'="" {
-				set st = ##class(MDX2JSON.Utils).WriteJSONfromMDX(mdx, timeout)
+				set st = ##class(MDX4JSON.Utils).WriteJSONfromMDX(mdx, timeout)
 			} else {
-				set st = ##class(MDX2JSON.Utils).WriteJSONfromQuery(cubeKey, queryKey, timeout)				
+				set st = ##class(MDX4JSON.Utils).WriteJSONfromQuery(cubeKey, queryKey, timeout)				
 			}
 		}
 	} catch ex {
@@ -300,48 +301,48 @@ Converts incoming request object and calls abovementioned method.]]></Descriptio
 
 <Method name="WriteJSONPfromMDX">
 <Description><![CDATA[
-Wrapper for ##class(MDX2JSON.Utils).WriteJSONPfromMDX(pMDX)<br>
+Wrapper for ##class(MDX4JSON.Utils).WriteJSONPfromMDX(pMDX)<br>
 Converts incoming request object and calls abovementioned method.]]></Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[	return ##class(MDX2JSON.Utils).WriteJSONPfromMDX($$$R("MDX"))
+<Implementation><![CDATA[	return ##class(MDX4JSON.Utils).WriteJSONPfromMDX($$$R("MDX"))
 ]]></Implementation>
 </Method>
 
 <Method name="WriteXMLAfromMDX">
 <Description><![CDATA[
-Wrapper for ##class(MDX2JSON.Utils).WriteXMLAfromMDX(pMDX)<br>
+Wrapper for ##class(MDX4JSON.Utils).WriteXMLAfromMDX(pMDX)<br>
 Converts incoming request object and calls abovementioned method.]]></Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[	return ##class(MDX2JSON.Utils).WriteXMLAfromMDX($$$R("MDX"))
+<Implementation><![CDATA[	return ##class(MDX4JSON.Utils).WriteXMLAfromMDX($$$R("MDX"))
 ]]></Implementation>
 </Method>
 
 <Method name="GetFormat">
 <Description>
-Wrapper for ##class(MDX2JSON.Utils).GetFormat()</Description>
+Wrapper for ##class(MDX4JSON.Utils).GetFormat()</Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[	return ##class(MDX2JSON.Utils).GetFormat()
+<Implementation><![CDATA[	return ##class(MDX4JSON.Utils).GetFormat()
 ]]></Implementation>
 </Method>
 
 <Method name="GetConfig">
 <Description>
-Wrapper for ##class(MDX2JSON.Users).GetConfig()</Description>
+Wrapper for ##class(MDX4JSON.Users).GetConfig()</Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>Application</FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
-	w "{"_$$$ZENJSPAIR("Config",##class(MDX2JSON.Users).GetConfig(Application))_"}"
+	w "{"_$$$ZENJSPAIR("Config",##class(MDX4JSON.Users).GetConfig(Application))_"}"
 	return $$$OK
 ]]></Implementation>
 </Method>
 
 <Method name="SetConfig">
 <Description>
-Wrapper for ##class(MDX2JSON.Users).SetConfig()</Description>
+Wrapper for ##class(MDX4JSON.Users).SetConfig()</Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
@@ -349,7 +350,7 @@ Wrapper for ##class(MDX2JSON.Users).SetConfig()</Description>
 	if (($IsObject(config)) && (config.%IsA("%ZEN.proxyObject"))) {
 		set config = ..OutputToStr(config,"%ToJSON")
 	}
-	return ##class(MDX2JSON.Users).SetConfig($$$R("Application"),config)
+	return ##class(MDX4JSON.Users).SetConfig($$$R("Application"),config)
 ]]></Implementation>
 </Method>
 
@@ -359,7 +360,7 @@ Get a list of favorites for a current user</Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
-	set st = ##class(MDX2JSON.Users).GetFavorites()
+	set st = ##class(MDX4JSON.Users).GetFavorites()
 	return st
 ]]></Implementation>
 </Method>
@@ -391,7 +392,7 @@ Get a list of favorites for a current user</Description>
 <Implementation><![CDATA[
 	set Cube = $ZCONVERT($ZCONVERT(Cube ,"I","URL") ,"I","UTF8")
 	set Action = $ZCONVERT($ZCONVERT(Action ,"I","URL") ,"I","UTF8")
-	return ##class(MDX2JSON.Utils).ExecuteAction(Cube,Action,%request.Content)
+	return ##class(MDX4JSON.Utils).ExecuteAction(Cube,Action,%request.Content)
 ]]></Implementation>
 </Method>
 
@@ -404,7 +405,7 @@ See correspontding method from DeepSee.REST.v1.InfoServer ]]></Description>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	set Cube = $ZCONVERT($ZCONVERT(Cube,"I","URL") ,"I","UTF8")
-	return ##class(MDX2JSON.Utils).WritePivotVariablesForCube(Cube)
+	return ##class(MDX4JSON.Utils).WritePivotVariablesForCube(Cube)
 ]]></Implementation>
 </Method>
 
@@ -428,7 +429,7 @@ DSW specific method, returns available addons</Description>
 	while rs.%Next() {
 		$$$Insert(list, url _ rs.ItemName)
 	}
-	set sc = ##class(MDX2JSON.Utils).CreateAddons(list)
+	set sc = ##class(MDX4JSON.Utils).CreateAddons(list)
 	
 	if $$$ISOK(sc) {
 		$$$ListToJSON(list)

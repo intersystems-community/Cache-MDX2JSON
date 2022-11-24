@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Export generator="Cache" version="25">
-<Class name="MDX2JSON.EmptyPortlet">
+<Class name="MDX4JSON.EmptyPortlet">
 <Super>%DeepSee.Component.Portlet.abstractPortlet</Super>
 <TimeCreated>63677,67001.020851</TimeCreated>
 

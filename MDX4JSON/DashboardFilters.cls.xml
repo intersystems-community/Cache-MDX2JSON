@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Export generator="Cache" version="25">
-<Class name="MDX2JSON.DashboardFilters">
+<Class name="MDX4JSON.DashboardFilters">
 <Description>
 Class with methods related to DeepSee Dashboard and Widget processing.</Description>
-<IncludeCode>MDX2JSON.MDX2JSON</IncludeCode>
-<Super>MDX2JSON.Dashboard</Super>
+<IncludeCode>MDX4JSON.MDX4JSON</IncludeCode>
+<Super>MDX4JSON.Dashboard</Super>
 <TimeCreated>63644,52893.543838</TimeCreated>
 
 <Method name="WidgetsToProxyObject">
@@ -68,7 +68,7 @@ Converts %DeepSee.Dashboard.Control object into %ZEN.proxyObject, handles run-ti
 <ReturnType>%ZEN.proxyObject</ReturnType>
 <Implementation><![CDATA[
 	return:((Widget.controls.GetAt(Number).action="applyFilter") || (Widget.controls.GetAt(Number).action="setFilter")) ""
-	return ##class(MDX2JSON.Dashboard).WidgetControlToProxyObject(Widget,Number,Cube)
+	return ##class(MDX4JSON.Dashboard).WidgetControlToProxyObject(Widget,Number,Cube)
 ]]></Implementation>
 </Method>
 
@@ -81,7 +81,7 @@ Converts %DeepSee.Dashboard.Control object into %ZEN.proxyObject, handles run-ti
 <ReturnType>%ZEN.proxyObject</ReturnType>
 <Implementation><![CDATA[
 	return:'((Widget.controls.GetAt(Number).action="applyFilter") || (Widget.controls.GetAt(Number).action="setFilter")) ""
-	return ##class(MDX2JSON.Dashboard).WidgetControlToProxyObject(Widget,Number,Cube)
+	return ##class(MDX4JSON.Dashboard).WidgetControlToProxyObject(Widget,Number,Cube)
 ]]></Implementation>
 </Method>
 </Class>

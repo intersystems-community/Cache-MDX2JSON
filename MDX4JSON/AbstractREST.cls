@@ -1,27 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25">
-<Class name="MDX2JSON.AbstractREST">
-<Description>
-All logic related to the proceccing of http requests.</Description>
-<IncludeCode>MDX2JSON.MDX2JSON</IncludeCode>
-<Super>%CSP.REST</Super>
-<TimeCreated>63572,78432.426689</TimeCreated>
+Include MDX4JSON.MDX4JSON
 
-<Parameter name="UseSession">
-<Type>Integer</Type>
-<Default>1</Default>
-</Parameter>
+/// All logic related to the proceccing of http requests.
+Class MDX4JSON.AbstractREST Extends %CSP.REST
+{
 
-<Method name="OnPreDispatch">
-<Description>
-This method gets called prior to dispatch of the request. Put any common code here
-that you want to be executed for EVERY request. If pContinue is set to 0, the
-request will NOT be dispatched according to the UrlMap. In this case it's the
-responsibility of the user to return a response.</Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec><![CDATA[pUrl:%String,pMethod:%String,&pContinue:%Boolean]]></FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
+Parameter UseSession As Integer = 1;
+
+/// This method gets called prior to dispatch of the request. Put any common code here
+/// that you want to be executed for EVERY request. If pContinue is set to 0, the
+/// request will NOT be dispatched according to the UrlMap. In this case it's the
+/// responsibility of the user to return a response.
+ClassMethod OnPreDispatch(pUrl As %String, pMethod As %String, ByRef pContinue As %Boolean) As %Status
+{
 	Set pContinue = 1
 	#dim request As %CSP.Request
 	Do %response.SetHeader("Access-Control-Allow-Origin",..GetOrigins())
@@ -58,15 +48,11 @@ responsibility of the user to return a response.</Description>
 	}
 	
     Quit $$$OK
-]]></Implementation>
-</Method>
+}
 
-<Method name="ConvertRequestBody">
-<Description>
-Converts request into UTF8. Converts request into proxyObject. </Description>
-<ClassMethod>1</ClassMethod>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
+/// Converts request into UTF8. Converts request into proxyObject. 
+ClassMethod ConvertRequestBody() As %Status
+{
 	#dim %request As %CSP.Request
 	#dim obj As %ZEN.proxyObject
 
@@ -81,27 +67,18 @@ Converts request into UTF8. Converts request into proxyObject. </Description>
 
 	set %request.Content = obj // obj here is a valid UTF8 proxyObject with required property
 	return $$$OK
-]]></Implementation>
-</Method>
+}
 
-<Method name="GetOrigins">
-<Description>
-Get Origin from %request object </Description>
-<ClassMethod>1</ClassMethod>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[
+/// Get Origin from %request object 
+ClassMethod GetOrigins() As %String
+{
 	set url = %request.GetCgiEnv("HTTP_REFERER")
 	return $p(url,"/",1,3) // get http(s)://origin.com:port
-]]></Implementation>
-</Method>
+}
 
-<Method name="Login">
-<Description>
-Called for a REST page in the event of a login being required</Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>skipheader:%Boolean=1</FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
+/// Called for a REST page in the event of a login being required
+ClassMethod Login(skipheader As %Boolean = 1) As %Status
+{
 	Do %response.SetHeader("Access-Control-Allow-Origin",..GetOrigins())
 	Do %response.SetHeader("Access-Control-Allow-Credentials","true")
 	Do %response.SetHeader("Access-Control-Allow-Methods","GET, PUT, POST, DELETE, OPTIONS")
@@ -127,17 +104,12 @@ Called for a REST page in the event of a login being required</Description>
 	Do %response.WriteHTTPHeader()
 
 	Return $$$OK
-]]></Implementation>
-</Method>
+}
 
-<Method name="Http500">
-<Description><![CDATA[
-Issue an '500' error and give some indication as to what occurred.<br>
-<b>pStatus</b> - %status, not %Exception.AbstractException.]]></Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>pStatus:%Exception.AbstractException</FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
+/// Issue an '500' error and give some indication as to what occurred.<br>
+/// <b>pStatus</b> - %status, not %Exception.AbstractException.
+ClassMethod Http500(pStatus As %Exception.AbstractException) As %Status
+{
 	// we are expecting status
 	#; Set the response Http status
 	Set %response.Status="500 Internal Server Error"
@@ -149,15 +121,11 @@ Issue an '500' error and give some indication as to what occurred.<br>
 	Write "{""Error"":"_$$$ZENJSSTR($System.Status.GetErrorText(pStatus,%session.Language))_"}"
 
 	Quit $$$OK
-]]></Implementation>
-</Method>
+}
 
-<Method name="GetMappings">
-<Description>
-Returns info about MDX2JSON package mapping</Description>
-<ClassMethod>1</ClassMethod>
-<ReturnType>%ArrayOfObjects</ReturnType>
-<Implementation><![CDATA[
+/// Returns info about MDX4JSON package mapping
+ClassMethod GetMappings() As %ArrayOfObjects
+{
 	Set result = ##class(%ArrayOfObjects).%New()
 	Set mapped = ##class(%ListOfDataTypes).%New()
 	Set unmapped = ##class(%ListOfDataTypes).%New()
@@ -179,17 +147,12 @@ Returns info about MDX2JSON package mapping</Description>
 	do result.SetAt(mapped,"Mapped")
 	do result.SetAt(unmapped,"Unmapped")
 	return result
-]]></Implementation>
-</Method>
+}
 
-<Method name="CheckNamespace">
-<Description><![CDATA[
-Returns OK if namespace both exists and contains MDX2JSON package.<br>
-<b>Namespace</b> - name of namespace. Sets namespace variable to current namespace if empty or missing.]]></Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec><![CDATA[&Namespace:%String=$Namespace]]></FormalSpec>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
+/// Returns OK if namespace both exists and contains MDX4JSON package.<br>
+/// <b>Namespace</b> - name of namespace. Sets namespace variable to current namespace if empty or missing.
+ClassMethod CheckNamespace(ByRef Namespace As %String = {$Namespace}) As %Status
+{
 	if (Namespace = "") {
 		set Namespace = $Namespace
 		return $$$OK
@@ -199,33 +162,27 @@ Returns OK if namespace both exists and contains MDX2JSON package.<br>
 	new $Namespace
 	set $Namespace = Namespace
 	
-	set class = "MDX2JSON.Utils"
+	set class = "MDX4JSON.Utils"
 	
 	set exists = ##class(%Dictionary.CompiledClass).%ExistsId(class)
-	return:(exists=$$$NO) $$$ERROR($$$GeneralError, "MDX2JSON package is not mapped to " _ Namespace)
+	return:(exists=$$$NO) $$$ERROR($$$GeneralError, "MDX4JSON package is not mapped to " _ Namespace)
 	
-	// If the current namespace holds unmapped MDX2JSON, include it regardless of dashboards existence
+	// If the current namespace holds unmapped MDX4JSON, include it regardless of dashboards existence
 	return:(##class(%RoutineMgr).IsMapped(class _ ".cls") = $$$NO) $$$OK
 	
 	// Strictly speaking this can be a false-positive check
-	set exists = ($data(@##class(MDX2JSON.DashboardRS).#global)>0)
+	set exists = ($data(@##class(MDX4JSON.DashboardRS).#global)>0)
 	return:(exists=$$$NO) $$$ERROR($$$GeneralError, "No dashboards exist in " _ Namespace)
 
 	return $$$OK
-]]></Implementation>
-</Method>
+}
 
-<Method name="OutputToStr">
-<Description><![CDATA[
-Executes actions and returns device output <br>
-pObj - OREF or class<br>
-pMethod - instance or class method to execute respectively<br>
-pArgs - additional arguments]]></Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>pObj,pMethod,pArgs...</FormalSpec>
-<ProcedureBlock>0</ProcedureBlock>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[
+/// Executes actions and returns device output <br>
+/// pObj - OREF or class<br>
+/// pMethod - instance or class method to execute respectively<br>
+/// pArgs - additional arguments
+ClassMethod OutputToStr(pObj, pMethod, pArgs...) As %String [ ProcedureBlock = 0 ]
+{
 	set tOldIORedirected = ##class(%Device).ReDirectIO()
 	set tOldMnemonic = ##class(%Device).GetMnemonicRoutine()
 	set tOldIO = $io
@@ -275,7 +232,6 @@ wtab(s)      do output($char(9))  quit
 	//Output label - this is where you would handle what you actually want to do.
 	//  in our case, we want to write to str
 output(s)    set str=str_s   quit
-]]></Implementation>
-</Method>
-</Class>
-</Export>
+}
+
+}

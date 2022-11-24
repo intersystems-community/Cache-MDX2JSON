@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Export generator="Cache" version="25">
-<Class name="MDX2JSON.Users">
+<Class name="MDX4JSON.Users">
 <Description><![CDATA[
 Class for Setting/Getting User <b>settings</b> for various <b>apps</b>.<br>
 Can also export/import dettings to/from <b>files</b>.]]></Description>
-<IncludeCode>MDX2JSON.MDX2JSON</IncludeCode>
+<IncludeCode>MDX4JSON.MDX4JSON</IncludeCode>
 <TimeCreated>63669,64053.502396</TimeCreated>
 
 <Method name="GetConfig">
@@ -183,12 +183,12 @@ Get Current user favorites</Description>
 <Description>
 Move config from old storage schema to a new one</Description>
 <ClassMethod>1</ClassMethod>
-<FormalSpec>TargetNS="MDX2JSON"</FormalSpec>
+<FormalSpec>TargetNS="MDX4JSON"</FormalSpec>
 <Implementation><![CDATA[
 	new $Namespace
 	#dim mappedlist As %ListOfDataTypes
 	#dim userlist As %ListOfDataTypes
-	set mappedlist = ##class(MDX2JSON.AbstractREST).GetMappings().GetAt("Mapped")
+	set mappedlist = ##class(MDX4JSON.AbstractREST).GetMappings().GetAt("Mapped")
 	set userlist = ..GetUserList()
 	for i = 1:1:mappedlist.Count() {
 		zn mappedlist.GetAt(i)
@@ -197,7 +197,7 @@ Move config from old storage schema to a new one</Description>
 				set settings($$$Settings, userlist.GetAt(j), $ZCVT($Namespace,"U")) = ..GetConfig("DeepSeeWeb",userlist.GetAt(j))
 			}
 		}
-		m ^MDX2JSONOld = $$$Global
+		m ^MDX4JSONOld = $$$Global
 		k $$$Global	
 	}
 	zn TargetNS
@@ -209,13 +209,13 @@ Move config from old storage schema to a new one</Description>
 <Description>
 Move config from new storage schema to an old one</Description>
 <ClassMethod>1</ClassMethod>
-<FormalSpec>TargetNS="MDX2JSON"</FormalSpec>
+<FormalSpec>TargetNS="MDX4JSON"</FormalSpec>
 <Implementation><![CDATA[
 	new $Namespace
-	set mappedlist = ##class(MDX2JSON.AbstractREST).GetMappings().GetAt("Mapped")
+	set mappedlist = ##class(MDX4JSON.AbstractREST).GetMappings().GetAt("Mapped")
 	for i = 1:1:mappedlist.Count() {
 		zn mappedlist.GetAt(i) 
-		m $$$Global = ^MDX2JSONOld
+		m $$$Global = ^MDX4JSONOld
 	}
 ]]></Implementation>
 </Method>
