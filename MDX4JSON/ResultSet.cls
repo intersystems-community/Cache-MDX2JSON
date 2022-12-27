@@ -157,6 +157,7 @@ Method ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, No
 	
 	try {
 		set cell.path = ##class(%DeepSee.Query.Engine).%GetSpecForAxisNode(CubeName, QueryKey, AxisNumber, Node) // MDX cell path
+		set cell.path = $TRANSLATE(cell.path, "()", "") // Removing redundant parentheses
 	} catch ex {
 		set cell.path = "path too long"		
 	}
