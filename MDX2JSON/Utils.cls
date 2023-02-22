@@ -154,7 +154,11 @@ ClassMethod WriteDrillthroughJSONKPI(pSQL As %String) As %Status
 {
 
 	set tSQL = ..TestSQL(pSQL)
-	
+
+	if (tSQL="") {	// return empty sql if forbidden sql query is detected
+		write "Forbidden query" 
+		quit
+	}
 	Set statement = ##class(%SQL.Statement).%New()
 
 	// Prepare the SQL query
@@ -162,8 +166,8 @@ ClassMethod WriteDrillthroughJSONKPI(pSQL As %String) As %Status
 
 	// Check for errors
 	If $$$ISERR(status) {
-		Write "Error preparing SQL statement or query is forbidden: ", $System.Status.GetErrorText(status), !
-		Quit
+		write "Error preparing SQL statement or query is forbidden: ", $System.Status.GetErrorText(status), !
+		quit
 	}
 	
 	else{
@@ -174,7 +178,6 @@ ClassMethod WriteDrillthroughJSONKPI(pSQL As %String) As %Status
 	
 	return $$$OK
 }
-
 
 /// Automatic processing of MDX query and outputting resulting XML/A.<br>
 /// <b>pMDX</b> - String containing MDX query.<br>
