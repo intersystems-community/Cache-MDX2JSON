@@ -133,6 +133,49 @@ ClassMethod WriteDrillthroughJSON(pMDX As %String) As %Status
 	return $$$OK
 }
 
+ClassMethod TestSQL(ByRef tSQL As %String) [ Language = python ]
+{
+	import iris
+	pSQL = tSQL.upper()
+
+	forbiden_lines = ["DROP", "DELETE", "TRUNCATE", "ALTER", "GRANT", "REVOKE", "CREATE"]
+
+	# check if any of the forbiden_lines contains in pSQL
+	for words in forbiden_lines:
+		if pSQL.find(words) > 0:
+			pSQL = "" # return empty line if any
+			break
+
+	
+	return pSQL
+}
+
+ClassMethod WriteDrillthroughJSONKPI(pSQL As %String) As %Status
+{
+
+	set tSQL = ..TestSQL(pSQL)
+	
+	Set statement = ##class(%SQL.Statement).%New()
+
+	// Prepare the SQL query
+	Set status = statement.%Prepare(tSQL)
+
+	// Check for errors
+	If $$$ISERR(status) {
+		Write "Error preparing SQL statement or query is forbidden: ", $System.Status.GetErrorText(status), !
+		Quit
+	}
+	
+	else{
+		
+		do ##class(%ZEN.Auxiliary.altJSONSQLProvider).%WriteJSONFromSQL(,tSQL,,$$$MaxCacheInt) // receiving sql and process it 
+	}
+	
+	
+	return $$$OK
+}
+
+
 /// Automatic processing of MDX query and outputting resulting XML/A.<br>
 /// <b>pMDX</b> - String containing MDX query.<br>
 ClassMethod WriteXMLAfromMDX(pMDX As %String) As %Status
