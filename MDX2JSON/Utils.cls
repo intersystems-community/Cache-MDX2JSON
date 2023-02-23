@@ -133,21 +133,23 @@ ClassMethod WriteDrillthroughJSON(pMDX As %String) As %Status
 	return $$$OK
 }
 
-ClassMethod TestSQL(ByRef tSQL As %String) [ Language = python ]
+ClassMethod TestSQL(ByRef tSQL As %String)
 {
-	import iris
-	pSQL = tSQL.upper()
+	set ForbiddenLines = $lb("DROP", "DELETE", "TRUNCATE", "ALTER", "GRANT", "REVOKE", "CREATE")
 
-	forbiden_lines = ["DROP", "DELETE", "TRUNCATE", "ALTER", "GRANT", "REVOKE", "CREATE"]
-
-	# check if any of the forbiden_lines contains in pSQL
-	for words in forbiden_lines:
-		if pSQL.find(words) > 0:
-			pSQL = "" # return empty line if any
-			break
-
-	
-	return pSQL
+   	SET ptr=0
+   	WHILE $LISTNEXT(ForbiddenLines,ptr,value) {
+      
+      	set substring = $SELECT($DATA(value):value,1:"omitted")
+	  	set position = $FIND(tSQL, substring)
+    	if (position > 0)
+		{
+			set tSQL = "error"
+			quit 
+		}	 		
+   }
+   
+   quit tSQL
 }
 
 ClassMethod WriteDrillthroughJSONKPI(pSQL As %String) As %Status
@@ -155,7 +157,7 @@ ClassMethod WriteDrillthroughJSONKPI(pSQL As %String) As %Status
 
 	set tSQL = ..TestSQL(pSQL)
 
-	if (tSQL="") {	// return empty sql if forbidden sql query is detected
+	if (tSQL="error") {	// return empty sql if forbidden sql query is detected
 		write "Forbidden query" 
 		quit
 	}
