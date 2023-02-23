@@ -195,11 +195,7 @@ ClassMethod WriteXMLAfromMDX(pMDX As %String) As %Status
 	return st
 }
 
-ClassMethod WriteDrillthroughJSONKPI(pSQL As %String) As %Status
-{
-	do ##class(%ZEN.Auxiliary.altJSONSQLProvider).%WriteJSONFromSQL(,pSQL,,$$$MaxCacheInt) // receiving sql from kpi and process it 
-	return $$$OK
-}
+
 
 /// Gets filters for MDX expression.<br>
 /// <b>pMDX</b> - String containing MDX query.<br>
