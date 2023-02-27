@@ -115,8 +115,7 @@ ClassMethod WidgetToProxyObject(Widget As %DeepSee.Dashboard.Widget, CubeName As
 	if $piece(Widget.dataSource, ".", *) = "kpi" {
 		set kpiClass = ##class(%DeepSee.Utils).%GetKPIClass(Widget.dataSource)
 		set obj.kpitype = $classmethod(kpiClass, "%GetSourceType")
-		set widgetData = Widget.dataProperties.GetAt(1) 
-		set obj.format = widgetData.format // duplicating format data in case of incompatible widget
+		
 	}
 	
 	// Widget is a portlet
@@ -232,8 +231,16 @@ ClassMethod ProcesstextMeter(Widget As %DeepSee.Dashboard.Widget, Obj As %ZEN.pr
 	for i=1:1:Widget.dataProperties.Count()
 	{
 		set dataProperty = $$$NewDynObj
-		do Widget.dataProperties.GetAt(i).%CopyTo(dataProperty)
-		$$$Insert(Obj.dataProperties,dataProperty)
+		if (Widget.dataProperties.GetAt(i)) // check if widget have dataProperties
+		{ 
+			set widgetData = Widget.dataProperties.GetAt(i)
+			set dataProperty = ..WidgetDataPropertyToProxyObject(widgetData)
+			if $IsObject(dataProperty) 
+			{ 
+				$$$Insert(Obj.dataProperties,dataProperty)
+			}
+
+	}
 	}
 }
 
