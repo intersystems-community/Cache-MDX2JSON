@@ -53,12 +53,39 @@ ClassMethod ExecuteResultSet(RS As MDX2JSON.ResultSet, QueryKey As %String = "",
 	quit Status
 }
 
+
+/// Check MDX for yyyy-mm-dd time format and replace it with InterSystems IRIS internal format 
+ClassMethod ConvertTimeFormatMDX(MDX, Output nMDX As %String) As %Status
+{
+	set nMDX = MDX
+	set st = $$$OK
+	try {
+		set re = ##class(%Regex.Matcher).%New("\d{4}-\d{2}-\d{2}") // set regular expresion for date time
+		set re.Text = nMDX
+		while re.Locate(){ // while there is required data, method will operate on it
+			set nMDX = $REPLACE(nMDX, re.Group, $ZDATEH(re.Group, 15)) // replace first occurence 
+				while re.Locate() {
+					set nMDX = $REPLACE(nMDX, re.Group, $ZDATEH(re.Group, 15)) // replace second if there is one
+			}
+			
+		}
+		} catch ex {
+		set st = ex.AsStatus()
+		set nMDX = MDX
+		do ex.Log()
+	}
+		
+	return st
+}
+
 /// Automatic processing of MDX query and outputting resulting JSON.<br>
 /// <b>MDX</b> - String containing MDX query.<br>
 ClassMethod WriteJSONfromMDX(MDX As %String, Timeout As %Integer = 0) As %Status
 {
+	set tMDX = ..ConvertTimeFormatMDX(MDX, .pMDX)
+	
 	#dim RS As MDX2JSON.ResultSet
-	set RS = ..GetResultSet(MDX, .st)
+	set RS = ..GetResultSet(pMDX, .st)
 	return:$$$ISERR(st) st
 	
 	set st = ..ExecuteResultSet(RS, , Timeout)
