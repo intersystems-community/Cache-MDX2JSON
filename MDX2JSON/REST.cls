@@ -119,7 +119,7 @@ ClassMethod Test() As %Status
 	set obj.Status = "OK"
 	set obj.Embed = $g(^MDX2JSON.Embed, $g(^%MDX2JSON.Embed, ""))
 	set obj.User = $Username
-	set obj.Version = "3.2.5"
+	set obj.Version = "3.2.35"
 	set obj.Parent = ##class(MDX2JSON.Tests).#LastCommit
 	set obj.ParentTS = ##class(MDX2JSON.Tests).#LastCommitTS
 	set obj.DefaultApp = $System.CSP.GetDefaultApp($Namespace)
