@@ -39,7 +39,7 @@ ClassMethod OnPreDispatch(pUrl As %String, pMethod As %String, ByRef pContinue A
 	If $$$ISERR(st) {
 		#; Do ..Http500(st)
 		Set pContinue = $$$NO 
-		Quit
+		Quit st
 	}
 	
 	#; Dispatch
