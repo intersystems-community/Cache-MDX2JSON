@@ -47,7 +47,7 @@ ClassMethod OnPreDispatch(pUrl As %String, pMethod As %String, ByRef pContinue A
 		zn Namespace
 	}
 	
-    Quit $$$OK
+    return pContinue
 }
 
 /// Converts request into UTF8. Converts request into proxyObject. 
