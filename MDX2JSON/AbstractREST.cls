@@ -39,7 +39,7 @@ ClassMethod OnPreDispatch(pUrl As %String, pMethod As %String, ByRef pContinue A
 	If $$$ISERR(st) {
 		#; Do ..Http500(st)
 		Set pContinue = $$$NO 
-		Quit
+		Quit st
 	}
 	
 	#; Dispatch
@@ -47,7 +47,7 @@ ClassMethod OnPreDispatch(pUrl As %String, pMethod As %String, ByRef pContinue A
 		zn Namespace
 	}
 	
-    return pContinue
+    Quit $$$OK
 }
 
 /// Converts request into UTF8. Converts request into proxyObject. 
