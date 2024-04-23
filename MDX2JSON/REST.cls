@@ -292,7 +292,7 @@ ClassMethod KPIExecute() As %Status
 
 		if (Drillthrough = 1){
 			set SortOrder = $$$R("SortOrder")
-			set Filters = $$$R("Filters")
+			set Filters = $$$R("FILTERS")
 			set SortColumn = $$$R("SortColumn")
 			set pSelection = SortColumn _ "," _ SortOrder
 
