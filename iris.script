@@ -1,5 +1,2 @@
-;if $zf(-1,"echo ':!tail /usr/irissys/mgr/messages.log' >> ~/.iris_history")
-
 zpm "load /opt/irisapp/ -v":1
-
 halt
