@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  iris:
+    build:
+      context: .
+      dockerfile: Dockerfile
+#    restart: always
+#    command: --check-caps false --ISCAgent false
+    ports:
+      - 51663:1972
+      - 52663:52773
+      - 53773
+    command:
+      - -a
+      - iris session iris -U%SYS '##class(Security.Users).UnExpireUserPasswords("*")'
+      - --check-caps false
+#      network_mode: "host"
+    volumes:
+    #  - ~/iris.key:/usr/irissys/mgr/iris.key
+      - ./:/irisdev/app
