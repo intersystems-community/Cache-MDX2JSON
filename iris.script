@@ -1,0 +1,2 @@
+zpm "load /opt/irisapp/ -v":1
+halt

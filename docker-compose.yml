@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  iris:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 51663:1972
+      - 52663:52773
+      - 53773
+    command:
+      - -a
+      - iris session iris -U%SYS '##class(Security.Users).UnExpireUserPasswords("*")'
+      - --check-caps false
+    volumes:
+      - ./:/irisdev/app
