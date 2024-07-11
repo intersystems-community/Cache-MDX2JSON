@@ -60,8 +60,6 @@ ClassMethod WriteJSONfromMDX(MDX As %String, Timeout As %Integer = 0) As %Status
 	Set tSC = $$$OK
 	#dim RS As MDX2JSON.ResultSet
 
-	set start = $PIECE($NOW(),",",2)
-
 	set RS = ..GetResultSet(MDX, .tSC)
 	set cube = ##class(%DeepSee.Utils).%IsCubeCompound(RS.%Cube) // check if cube is compound type
 	return:$$$ISERR(tSC) tSC
@@ -78,6 +76,10 @@ ClassMethod WriteJSONfromMDX(MDX As %String, Timeout As %Integer = 0) As %Status
 		
 		set obj = RS.ToProxyObject(.tSC)
 		return:$$$ISERR(tSC) tSC
+
+		// check if audit global hold something and execute it
+		try {xecute ^DeepSee.AuditQueryCode} catch {}
+
 		$$$DynObjToJSON(obj)
 	
 	}else{ // if cube is not compound execute the query in usual way
@@ -87,15 +89,12 @@ ClassMethod WriteJSONfromMDX(MDX As %String, Timeout As %Integer = 0) As %Status
 		
 		set obj = RS.ToProxyObject(.tSC)
 		return:$$$ISERR(tSC) tSC
+
+		// check if audit global hold something and execute it
+		try {xecute ^DeepSee.AuditQueryCode} catch {}
+
 		$$$DynObjToJSON(obj)
 	}
-
-	set stop = $PIECE($NOW(),",",2)
-
-	set executionTime = stop - start
-	set query = RS.%GetQuery()
-
-	set audit = ..WriteAudit(MDX, "query", executionTime)
 
 	return $$$OK
 }
@@ -317,7 +316,6 @@ ClassMethod GetDataSource(pDataSource As %String)
 	
 	set st = $$$OK
 	try {
-		set start = $PIECE($NOW(),",",2)
 
 		if ($FIND(pDataSource, ".pivot") = ($LENGTH(pDataSource) + 1) && pDataSource '="") {
 			set st = ..OpenPivotByName(pDataSource, .dataSource)
@@ -329,13 +327,6 @@ ClassMethod GetDataSource(pDataSource As %String)
 				set dataSource.mdx = mdx
 			}
 			set st = ##class(%ZEN.Auxiliary.jsonProvider).%ObjectToJSON(dataSource, .out)
-
-			set stop = $PIECE($NOW(),",",2)
-
-			set executionTime = stop - start
-
-			set audit = ..WriteAudit(pDataSource, "pivot", executionTime)
-			
 			
 		}
 
@@ -426,22 +417,16 @@ ClassMethod GetWidgetsList(pDashName As %String) As %Status
 ClassMethod GetDashboard(pDashName As %String) As %Status
 {
 	try {
-		set start = $PIECE($NOW(),",",2)
-
 		set st = ##class(MDX2JSON.DashboardFilters).OpenDashboardByName(pDashName, .dash)
 		return:($$$ISERR(st)) st
 		
 		set st = ##class(MDX2JSON.DashboardFilters).WidgetsToProxyObject(dash, .widgetlist)
 		return:($$$ISERR(st)) st
 		w "" // weird hack required for 15.3
-		
-		set stop = $PIECE($NOW(),",",2)
-
-		set executionTime = stop - start
-
-		set audit = ..WriteAudit(pDashName, "dashboard", executionTime)
-		
 	
+		// check if audit global hold something and execute it
+		try {xecute ^DeepSee.AuditCode} catch {}
+
 		$$$DynObjToJSON(widgetlist)
 	} catch ex {
 		set st = ex.AsStatus()
@@ -582,115 +567,6 @@ ClassMethod CreateAddonClass(Class As %Dictionary.CacheClassname) As %Status
 	do classObj.Methods.Insert(methodObj)
 	
 	quit classObj.%Save()
-}
-
-ClassMethod WriteAudit(element, elementName, executionTime = 0) As %Status
-{
-	set st = $$$OK
-	
-	set ^CallAmount($INCREMENT(^CallAmount)) = 1
-
-
-	if ^AuditState = "on"
-	{
-		if elementName = "dashboard"
-		{
-			set ^MyBIAuditLogDash($INCREMENT(^MyBIAuditLogDash)) = $lb($ZDT($H,3), $USERNAME, element, executionTime)
-		}
-		elseif elementName = "pivot"
-		{
-			set ^MyBIAuditLogPivot($INCREMENT(^MyBIAuditLogPivot)) = $lb($ZDT($H,3), $USERNAME, element, executionTime)
-		}
-		elseif elementName = "query"
-		{
-			set ^MyBIAuditLogQuery($INCREMENT(^MyBIAuditLogQuery)) = $lb($ZDT($H,3), $USERNAME, element, executionTime)
-		}
-
-
-	}else{
-
-		quit st
-	}
-
-
-	return st
-}
-
-ClassMethod ReadAudit(metricName) As %Status
-{
-	set st = $$$OK
-	
-	if ^AuditState = "on"
-	{
-		if metricName = "query"
-		{
-
-			set len = $order(^MyBIAuditLogQuery(""),-1)
-			for n=1:1:len
-			{
-				set log = $Get(^MyBIAuditLogQuery(n))
-				write !
-				write "Element call time: ", $lg(log, 1), !
-				write "User: ", $lg(log, 2), !
-				write "Execution time in sec.: ", $lg(log, 4), !
-				write "Query: ", $lg(log, 3), !
-			}
-		}
-		elseif metricName = "pivot"
-		{
-	
-			set len = $order(^MyBIAuditLogPivot(""),-1)
-			for n=1:1:len
-			{
-				set log = $Get(^MyBIAuditLogPivot(n))
-				write !
-				write "Element call time: ", $lg(log, 1), !
-				write "User: ", $lg(log, 2), !
-				write "Execution time in sec.: ", $lg(log, 4), !
-				write "Pivot: ", $lg(log, 3), !
-			}
-		}
-		elseif metricName = "dashboard"
-		{
-			set len = $order(^MyBIAuditLogDash(""),-1)
-			for n=1:1:len
-			{
-				set log = $Get(^MyBIAuditLogDash(n))
-				write !
-				write "Element call time: ", $lg(log, 1), !
-				write "User: ", $lg(log, 2), !
-				write "Execution time in sec.: ", $lg(log, 4), !
-				write "Dashboard: ", $lg(log, 3), !
-			}
-		}
-	}
-
-	quit st
-}
-
-ClassMethod AuditStateSwitch(auditstate = 0) As %Status
-{
-	set st = $$$OK
-
-	if auditstate = 0
-	{
-		set ^AuditState = "off"
-
-	}else{
-		
-		set ^AuditState = "on"
-	}
-
-	write "Audit state: " _ ^AuditState
-}
-
-ClassMethod AuditKill() As %Status
-{
-	kill ^MyBIAuditLogDash
-	kill ^MyBIAuditLogPivot
-	kill ^MyBIAuditLogQuery
-
-	write "All globals are cleaned"
 }
 
 /// Add new widgets and edit existing ones directly from DeepSeeWeb
