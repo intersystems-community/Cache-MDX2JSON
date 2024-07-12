@@ -53,6 +53,11 @@ ClassMethod ExecuteResultSet(RS As MDX2JSON.ResultSet, QueryKey As %String = "",
 	quit Status
 }
 
+ClassMethod QuerySet(MDX) As %Status
+{
+	set ^Query($I(^Query), "%dsQuery") = MDX
+}
+
 /// Automatic processing of MDX query and outputting resulting JSON.<br>
 /// <b>MDX</b> - String containing MDX query.<br>
 ClassMethod WriteJSONfromMDX(MDX As %String, Timeout As %Integer = 0) As %Status
@@ -77,6 +82,13 @@ ClassMethod WriteJSONfromMDX(MDX As %String, Timeout As %Integer = 0) As %Status
 		set obj = RS.ToProxyObject(.tSC)
 		return:$$$ISERR(tSC) tSC
 
+		set %dsQuery = MDX
+
+		// initiate an RS object to a global variable %dsResultSet
+		set %dsResultSet = RS
+
+		set %dsCubeName = RS.%Cube
+
 		// check if audit global hold something and execute it
 		try {xecute ^DeepSee.AuditQueryCode} catch {}
 
@@ -90,11 +102,15 @@ ClassMethod WriteJSONfromMDX(MDX As %String, Timeout As %Integer = 0) As %Status
 		set obj = RS.ToProxyObject(.tSC)
 		return:$$$ISERR(tSC) tSC
 
+		set %dsQuery = MDX
+		set %dsResultSet = RS
+
 		// check if audit global hold something and execute it
 		try {xecute ^DeepSee.AuditQueryCode} catch {}
 
 		$$$DynObjToJSON(obj)
 	}
+
 
 	return $$$OK
 }
@@ -417,13 +433,16 @@ ClassMethod GetWidgetsList(pDashName As %String) As %Status
 ClassMethod GetDashboard(pDashName As %String) As %Status
 {
 	try {
+
 		set st = ##class(MDX2JSON.DashboardFilters).OpenDashboardByName(pDashName, .dash)
 		return:($$$ISERR(st)) st
 		
 		set st = ##class(MDX2JSON.DashboardFilters).WidgetsToProxyObject(dash, .widgetlist)
 		return:($$$ISERR(st)) st
 		w "" // weird hack required for 15.3
-	
+		
+		set %dsDashboard = pDashName
+		
 		// check if audit global hold something and execute it
 		try {xecute ^DeepSee.AuditCode} catch {}
 
@@ -433,6 +452,42 @@ ClassMethod GetDashboard(pDashName As %String) As %Status
 		do ex.Log()
 	}
 	return st
+}
+
+/// the method initiate the audit for %dsDashboard
+ClassMethod SetAuditCode() As %Status
+{
+	set ^DeepSee.AuditCode = "Do ##class(MDX2JSON.Utils).SetAuditDash()"
+
+	quit $$$OK
+}
+
+/// the method initiate the audit for %dsQueryText, %dsCubeName, %dsResultSet
+ClassMethod SetAuditQueryCode() As %Status
+{
+	set ^DeepSee.AuditQueryCode = "Do ##class(MDX2JSON.Utils).SetAuditQuery()"
+
+	quit $$$OK
+}
+
+/// zw ^AuditLogDash to get the dashboard audit dashboard readings
+ClassMethod SetAuditDash() As %Status
+{
+	set ^AuditLogDash($INCREMENT(^AuditLogDash),"%dsDashoard") = %dsDashboard
+
+	quit $$$OK
+}
+
+/// zw ^AuditLogQuery to get the query audit readings 
+/// zw ^AuditLogCube to get the cube audit readings
+/// zw ^AuditLogRS to get the RS audit readings
+ClassMethod SetAuditQuery() As %Status
+{
+	set ^AuditLogQuery($INCREMENT(^AuditLogQuery),"%dsQueryText") = %dsQueryText
+	set ^AuditLogCube($INCREMENT(^AuditLogQuery),"%dsCubeName") = %dsCubeName
+	set ^AuditLogRS($INCREMENT(^AuditLogRS),"%dsResultSet") = %dsResultSet
+
+	quit $$$OK
 }
 
 /// Get format defaults.
