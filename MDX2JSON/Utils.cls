@@ -475,6 +475,8 @@ ClassMethod SetAuditDash() As %Status
 {
 	set ^AuditLogDash($INCREMENT(^AuditLogDash),"%dsDashoard") = %dsDashboard
 
+	Do $SYSTEM.Security.Audit("Dsw","Dashboard","Dashboard","",$get(^AuditLogDash($O(^AuditLogDash(""), -1),"%dsDashoard")))
+
 	quit $$$OK
 }
 
@@ -486,6 +488,10 @@ ClassMethod SetAuditQuery() As %Status
 	set ^AuditLogQuery($INCREMENT(^AuditLogQuery),"%dsQueryText") = %dsQueryText
 	set ^AuditLogCube($INCREMENT(^AuditLogQuery),"%dsCubeName") = %dsCubeName
 	set ^AuditLogRS($INCREMENT(^AuditLogRS),"%dsResultSet") = %dsResultSet
+
+	Do $SYSTEM.Security.Audit("Dsw","Cube","Cube","",$get(^AuditLogCube($O(^AuditLogCube(""), -1),"%dsCubeName")))
+	Do $SYSTEM.Security.Audit("Dsw","Query","Query","",$get(^AuditLogQuery($O(^AuditLogQuery(""), -1),"%dsQueryText")))
+	Do $SYSTEM.Security.Audit("Dsw","Result set","Result set","",$get(^AuditLogRS($O(^AuditLogRS(""), -1),"%dsResultSet")))
 
 	quit $$$OK
 }
