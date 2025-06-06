@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  iris:
+    image: intersystemsdc/iris-community:latest
+    container_name: iris
+    ports:
+      - "52773:52773"  # Management Portal
+      - "1972:1972"    # SuperServer
+    volumes:
+      - ./:/irisdev/app  # Примонтировать исходники в контейнер
+    # environment:
+    #   - ISC_DATA_DIRECTORY=/irisdev/data
+    command: --check-caps false

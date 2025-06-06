@@ -123,6 +123,7 @@ ClassMethod Test() As %Status
 	set obj.Parent = ##class(MDX2JSON.Tests).#LastCommit
 	set obj.ParentTS = ##class(MDX2JSON.Tests).#LastCommitTS
 	set obj.DefaultApp = $System.CSP.GetDefaultApp($Namespace)
+	set obj.CurrentApp = $get(%request.Application)
 	set obj.Mappings = ..GetMappings()
 	if $$$Debug {
 		set obj.Roles = $Roles
@@ -153,7 +154,6 @@ ClassMethod saveWidget() As %Status
 	
 	return ##class(MDX2JSON.Utils).AddWidget(widgetData,dashboardData,key)
 }
-
 
 /// Get all data sources including "pivot", "kpi", "worksheets","metrics"
 ClassMethod GetListDataSources(Source) As %Status
@@ -192,7 +192,6 @@ ClassMethod GetListDataSources(Source) As %Status
 	
 	quit tSC
 }
-
 
 ClassMethod GetDataSource() As %Status
 {
@@ -282,7 +281,7 @@ ClassMethod WriteFiltersForDataSource() As %Status
   	return st
 }
 
-///Execute requests from kpi
+/// Execute requests from kpi
 ClassMethod KPIExecute() As %Status
 {
 	try{
