@@ -422,7 +422,9 @@ ClassMethod WriteAddons() As %Status
 {
 	#dim sc As %Status = $$$OK
 	
-	set app = "/dsw"
+	set defaultApp = $System.CSP.GetDefaultApp($Namespace)
+	set prefix = $piece(defaultApp, "/csp", 1)
+	set app = prefix _ "/dsw"
 	set path = $system.CSP.GetFileName(app _ "/")
 	set path = ##class(%File).NormalizeDirectory(path)
 	set path = ##class(%File).SubDirectoryName(path, "addons", $$$YES)	
@@ -447,7 +449,9 @@ ClassMethod WriteThemes() As %Status
 {
 	#dim sc As %Status = $$$OK
 	
-	set app = "/dsw"
+	set defaultApp = $System.CSP.GetDefaultApp($Namespace)
+	set prefix = $piece(defaultApp, "/csp", 1)
+	set app = prefix _ "/dsw"
 	set path = $system.CSP.GetFileName(app _ "/")
 	set path = ##class(%File).NormalizeDirectory(path)
 	set path = ##class(%File).SubDirectoryName(path, "themes", $$$YES)	
