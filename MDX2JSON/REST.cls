@@ -421,12 +421,20 @@ ClassMethod WritePivotVariablesForCube(Cube As %String) As %Status
 ClassMethod WriteAddons() As %Status
 {
 	#dim sc As %Status = $$$OK
-	
-	set app = "/dsw"
+
+	set currentApp =  $ZConvert($Get(%request.CgiEnvs("SCRIPT_NAME"), ""), "L")
+	set prefix = $piece(currentApp, "/mdx2json", 1)
+	set app = prefix _ "/dsw"
 	set path = $system.CSP.GetFileName(app _ "/")
 	set path = ##class(%File).NormalizeDirectory(path)
 	set path = ##class(%File).SubDirectoryName(path, "addons", $$$YES)	
 	set url = app _ "/addons/"
+
+	// Check if path exists
+	if '##class(%File).Exists(path) {
+		set sc = $$$ERROR($$$GeneralError, "Addons directory does not exist: "_path_". Probably different prefixes for MDX2JSON and DSW applications.")
+		quit sc
+	}
 	
 	#dim rs As %SQL.ClassQueryResultSet = ##class(%File).FileSetFunc(path, "*.js")
 	
@@ -447,12 +455,20 @@ ClassMethod WriteThemes() As %Status
 {
 	#dim sc As %Status = $$$OK
 	
-	set app = "/dsw"
+	set currentApp =  $ZConvert($Get(%request.CgiEnvs("SCRIPT_NAME"), ""), "L")
+	set prefix = $piece(currentApp, "/mdx2json", 1)
+	set app = prefix _ "/dsw"
 	set path = $system.CSP.GetFileName(app _ "/")
 	set path = ##class(%File).NormalizeDirectory(path)
 	set path = ##class(%File).SubDirectoryName(path, "themes", $$$YES)	
 	set url = app _ "/themes/"
 	
+	// Check if path exists
+	if '##class(%File).Exists(path) {
+		set sc = $$$ERROR($$$GeneralError, "Themes directory does not exist: "_path_". Probably different prefixes for MDX2JSON and DSW applications.")
+		quit sc
+	}
+
 	#dim rs As %SQL.ClassQueryResultSet = ##class(%File).FileSetFunc(path, "*.css")
 	
 	set list = $$$NewDynDTList
