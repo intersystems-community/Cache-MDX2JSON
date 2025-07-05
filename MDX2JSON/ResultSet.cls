@@ -19,8 +19,6 @@ Method ToProxyObject(Output pStatus As %Status) As %ZEN.proxyObject
 		return ""
 	}
 
-	set tQueryKey = ..%QueryKey
-
 	/*set st = ..%GetQueryStatus(..%Cube,tQueryKey)
 	if (st < 100) {
 		hang 1
@@ -95,11 +93,10 @@ Method AxesToListOfObjects() As %ListOfObjects
 	}
 
 	set axes=$$$NewDynObjList
-
 	for a = 1:1:tAxisCount {
 		set tAxisSize(a) = ..%GetAxisSize(a)
 		set tAxisKeys(a) = $G($$$DeepSeeResultsGLVN(tCubeIndex,tQueryKey,"axis",a))
-		$$$Insert(axes,..ProcessOneAxis(tCubeIndex,tAxisKeys(a),a))
+		$$$Insert(axes,..ProcessOneAxis(tCubeIndex,tAxisKeys(a),a,tAxisSize(a)))
 	}
 
 	if ($$$ListSize(axes)=0) {
@@ -109,32 +106,31 @@ Method AxesToListOfObjects() As %ListOfObjects
 	return axes
 }
 
-Method ProcessOneAxis(CubeIndex, AxisKey, AxisNumber) As %ZEN.proxyObject [ Internal ]
+Method ProcessOneAxis(CubeIndex, AxisKey, AxisNumber, AxisSize) As %ZEN.proxyObject [ Internal ]
 {
 	set tCubeName = $$$UPPER(..%Cube)
 	set tQueryKey = ..%QueryKey
 
 	set axis=$$$NewDynObj
-	set axis.tuples = ..ProcessOneAxisCell(CubeIndex, AxisKey, tCubeName, tQueryKey, AxisNumber, 1)
+	set axis.tuples = ..ProcessOneAxisCell(CubeIndex, AxisKey, tCubeName, tQueryKey, AxisNumber, 1, AxisSize)
 
 	return axis
 }
 
-Method ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, Node) As %ZEN.proxyObject [ Internal ]
+Method ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, Node, AxisSize) As %ZEN.proxyObject [ Internal ]
 {
 	set cell=$$$NewDynObj
 
 	set tNode = $G($$$DeepSeeAxisGLVN(CubeIndex,AxisKey,"axes",Node))
-
 	set cell.caption = ##class(%DeepSee.UserPortal.Utils).%ResolveText($LG(tNode,5)) // text caption
 	set cell.vis = $LG(tNode,2) // visibility helper - does not help (apperently it shows if the cell is the lowest level)  
-
 	// now we process cell children, if any exist
 	if ($D($$$DeepSeeAxisGLVN(CubeIndex, AxisKey, "axes", Node, "ch")) = 10) {
 		set cell.children = $$$NewDynObjList
-		set key = $O($$$DeepSeeAxisGLVN(CubeIndex, AxisKey, "axes", Node, "ch", ""))
-		while (key'="") {
-			set children = ..ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, key)
+		for i=1:1:AxisSize
+		{
+			set key = $G(@..%ResultCacheLocation@(..%CubeKey,..%QueryKey,"leaf",AxisNumber,i))
+			set children = ..ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, key,)
 			// Append children to cell
 			if $isobject(children) {
 				if ((children.%IsA("%ZEN.proxyObject")) || (children.%IsA("%Library.Object"))) {
@@ -145,8 +141,6 @@ Method ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, No
 					}
 				}
 			}
-
-			set key = $O($$$DeepSeeAxisGLVN(CubeIndex, AxisKey, "axes", Node, "ch", key))
 		}
 	}
 
