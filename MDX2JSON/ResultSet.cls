@@ -51,8 +51,6 @@ Method InfoToProxyObject() As %ZEN.proxyObject
 	set tQueryKey = ..%QueryKey
 	set tCubeName = $$$UPPER(..%Cube)
 
-
-
 	set tAxisCount = ..%GetAxisCount()
 	for a = 1:1:tAxisCount {
 		set tAxisSize(a) = ..%GetAxisSize(a)
@@ -129,8 +127,9 @@ Method ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, No
 		set cell.children = $$$NewDynObjList
 		for i=1:1:AxisSize
 		{
+			set AxisSize = AxisSize
 			set key = $G(@..%ResultCacheLocation@(..%CubeKey,..%QueryKey,"leaf",AxisNumber,i))
-			set children = ..ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, key,)
+			set children = ..ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, key, AxisSize)
 			// Append children to cell
 			if $isobject(children) {
 				if ((children.%IsA("%ZEN.proxyObject")) || (children.%IsA("%Library.Object"))) {
