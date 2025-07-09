@@ -111,39 +111,45 @@ Method ProcessOneAxis(CubeIndex, AxisKey, AxisNumber, AxisSize) As %ZEN.proxyObj
 	set tCubeName = $$$UPPER(..%Cube)
 	set tQueryKey = ..%QueryKey
 
-	set axis=$$$NewDynObj
-	set axis.tuples = ..ProcessOneAxisCell(CubeIndex, AxisKey, tCubeName, tQueryKey, AxisNumber, 1, AxisSize)
+	set axis = ..LoopProcessingAxisCells(CubeIndex, AxisKey, tCubeName, tQueryKey, AxisNumber, 1,AxisSize)
 
 	return axis
 }
 
-Method ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, Node, AxisSize) As %ZEN.proxyObject [ Internal ]
+Method LoopProcessingAxisCells(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, Node, AxisSize) As %ZEN.proxyObject [ Internal ]
 {
-	set cell=$$$NewDynObj
 
-	set tNode = $G($$$DeepSeeAxisGLVN(CubeIndex,AxisKey,"axes",Node))
-	set cell.caption = ##class(%DeepSee.UserPortal.Utils).%ResolveText($LG(tNode,5)) // text caption
-	set cell.vis = $LG(tNode,2) // visibility helper - does not help (apperently it shows if the cell is the lowest level)  
-	// now we process cell children, if any exist
+	set axis=$$$NewDynObj
+
 	if ($D($$$DeepSeeAxisGLVN(CubeIndex, AxisKey, "axes", Node, "ch")) = 10) {
-		set cell.children = $$$NewDynObjList
+		set axis.tuples = $$$NewDynObjList
 		for i=1:1:AxisSize
 		{
 			set key = $G(@..%ResultCacheLocation@(..%CubeKey,..%QueryKey,"leaf",AxisNumber,i))
-			set children = ..ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, key,)
+			set children = ..ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, key)
 			// Append children to cell
 			if $isobject(children) {
 				if ((children.%IsA("%ZEN.proxyObject")) || (children.%IsA("%Library.Object"))) {
-					$$$Insert(cell.children,children)
+					$$$Insert(axis.tuples,children)
 				} elseif ((children.%IsA("%Collection.AbstractList")) || (children.%IsA("%Library.Array"))) {
 					for i=1:1:$$$ListSize(children) {
-						$$$Insert(cell.children,$$$ListGet(children,i))
+						$$$Insert(axis.tuples,$$$ListGet(children,i))
 					}
 				}
 			}
 		}
 	}
 
+	return axis
+}
+
+Method ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, Node) As %ZEN.proxyObject [ Internal ]
+{
+	set cell=$$$NewDynObj
+	set tNode = $G($$$DeepSeeAxisGLVN(CubeIndex,AxisKey,"axes",Node))
+	set cell.caption = ##class(%DeepSee.UserPortal.Utils).%ResolveText($LG(tNode,5)) // text caption
+	set cell.vis = $LG(tNode,2) // visibility helper - does not help (apperently it shows if the cell is the lowest level)  
+	
 	//To filter out invisible сells
 	if (..IsCellNull(cell)=1) {
 		return cell.children
