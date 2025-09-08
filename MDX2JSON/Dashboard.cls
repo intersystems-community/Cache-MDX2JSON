@@ -7,7 +7,7 @@ Class MDX2JSON.Dashboard
 /// Folder, from which we get Dashboards.
 Parameter folderName As %String = "Mobile";
 
-/// Get SQL for folder, from which we get Dashboards. 
+/// Get SQL for folder, from which we get Dashboards.
 ClassMethod GetDashboardListSQL(folderName As %String = {..#folderName}) As %String
 {
 	set basesql = "SELECT MDX2JSON.ResolveText(title) AS title, fullName AS path, MDX2JSON.GetDashCover(bookCover) AS Cover FROM %DeepSee_Dashboard.Definition "
@@ -53,19 +53,19 @@ ClassMethod ResolveText(Text As %String) As %String [ SqlName = ResolveText, Sql
 ClassMethod OpenDashboardByName(DashName As %Integer, Output Dashboard As %DeepSee.Dashboard.Definition) As %Status
 {
 	 kill Dashboard
-	 
+
 	 set id = ""
 	 set global = ##class(MDX2JSON.DashboardRS).#global
 	 set dashclass = ##class(MDX2JSON.DashboardRS).#dashclass
 	 for {
 	 	set id = $order(@global@(id))
 	 	quit:id=""
-	 		
+
 	 	/// first we check that it's a dashboard (not a pivot, etc.)
 		set oid = ##class(%DeepSee.UserLibrary.FolderItem).%ComposeOid(id)
 	    do ##class(%DeepSee.UserLibrary.FolderItem).%OnDetermineClass(oid, .class)
 	    CONTINUE:class'=dashclass
-	    
+
 	    /// second we check that it's the one we need
 	    quit:$ZCVT(##class(MDX2JSON.DashboardRS).GetDashFullName(id),"L")=$ZCVT(DashName,"L")
 	 }
@@ -78,7 +78,7 @@ ClassMethod OpenDashboardByName(DashName As %Integer, Output Dashboard As %DeepS
 ClassMethod WidgetsToProxyObject(Dashboard As %DeepSee.Dashboard.Definition, Output Widgetlist As %ZEN.proxyObject) As %Status
 {
 	#Dim widget As %DeepSee.Dashboard.Widget
-	
+
 	set Widgetlist = $$$NewDynObj
 	set Widgetlist.children = $$$NewDynObjList
 	set Widgetlist.displayInfo = ..GetDashboardDisplayInfo(Dashboard)
@@ -96,9 +96,8 @@ ClassMethod WidgetsToProxyObject(Dashboard As %DeepSee.Dashboard.Definition, Out
 	return st
 }
 
-
-/// A very specific method of displaying the data type for cube measures. 
-/// Serves for the convenience of front-end development of the filter widget. 
+/// A very specific method of displaying the data type for cube measures.
+/// Serves for the convenience of front-end development of the filter widget.
 /// The return is something like this <b>%DeepSee.Time.DayMonthYear</b>
 ClassMethod GetCubeMeasuresDataType(Widget, Number, CubeName, Output DataType As %String) As %Status
 {
@@ -115,8 +114,8 @@ ClassMethod GetCubeMeasuresDataType(Widget, Number, CubeName, Output DataType As
 				Set tMbrInfo = $G($$$DeepSeeMetaGLVN("cubes",$$$UPPER(CubeName),"mbr#",pDimNo,pHierNo,pLevelNo))
 				set DataType = $LG(tMbrInfo,6) // get data type
 				if '($FIND(DataType, "%")){ // if DataType return cube fact search for dataType in "star"
-					Set tMbrInfo = $G($$$DeepSeeMetaGLVN("cubes", $$$UPPER(CubeName), "star", DataType, "prop", $LG(tMbrInfo,7), "type")) 
-					set DataType = tMbrInfo 
+					Set tMbrInfo = $G($$$DeepSeeMetaGLVN("cubes", $$$UPPER(CubeName), "star", DataType, "prop", $LG(tMbrInfo,7), "type"))
+					set DataType = tMbrInfo
 				}
 		}else{
 
@@ -146,22 +145,22 @@ ClassMethod WidgetToProxyObject(Widget As %DeepSee.Dashboard.Widget, CubeName As
 		set basemdx = ""
 		set obj.dataLink = Widget.dataLink
 	}
-	
+
 	// datasource is a kpi
 	if $piece(Widget.dataSource, ".", *) = "kpi" {
 		set kpiClass = ##class(%DeepSee.Utils).%GetKPIClass(Widget.dataSource)
 		set obj.kpitype = $classmethod(kpiClass, "%GetSourceType")
 		set obj.kpiclass = kpiClass // showing kpi class for implementing context menu button for kpi
-		
+
 	}
-	
+
 	// Widget is a portlet
 	if Widget.type = "portlet" {
 		set portletClass = Widget.subtypeClass
 		set:portletClass="" portletClass = Widget.subtype
 		set obj.settings = ..PortletSettingsToArray(portletClass)
 	}
-	 
+
 	set obj.mdx = $g(mdx)
 	set obj.name = Widget.name
 	set obj.basemdx = $g(basemdx)
@@ -181,7 +180,7 @@ ClassMethod WidgetToProxyObject(Widget As %DeepSee.Dashboard.Widget, CubeName As
 			$$$Insert(obj.controls,control)
 		}
 	}
-	
+
 	for i=1:1:Widget.dataProperties.Count()
 	{
 		set widgetData = Widget.dataProperties.GetAt(i)
@@ -205,7 +204,7 @@ ClassMethod WidgetToProxyObject(Widget As %DeepSee.Dashboard.Widget, CubeName As
 			do:(key'="") obj.properties.%DispatchSetProperty(key,property)
 		} while key'=""
 	}
-	
+
 	if Widget.overrides.Count()>0 {
 		set obj.overrides = $$$NewDynObjList
 		do {
@@ -269,11 +268,11 @@ ClassMethod ProcesstextMeter(Widget As %DeepSee.Dashboard.Widget, Obj As %ZEN.pr
 	{
 		set dataProperty = $$$NewDynObj
 		if (Widget.dataProperties.GetAt(i)) // check if widget have dataProperties
-		{ 
+		{
 			set widgetData = Widget.dataProperties.GetAt(i)
 			set dataProperty = ..WidgetDataPropertyToProxyObject(widgetData)
-			if $IsObject(dataProperty) 
-			{ 
+			if $IsObject(dataProperty)
+			{
 				$$$Insert(Obj.dataProperties,dataProperty)
 			}
 
@@ -296,7 +295,7 @@ ClassMethod WidgetControlToProxyObject(Widget As %DeepSee.Dashboard.Widget, Numb
 	{
 		set obj.targetPropertyDataType = fDataType
 	}
-	
+
 	set:(obj.target="") obj.target = Widget.name
 
 	if ($e(obj.value)="@") {
@@ -355,7 +354,7 @@ ClassMethod GetMdx(pPivotName As %String, Output MDX, Output BaseMDX) As %Status
 /// Returns list of %ZEN.proxyObject:<br/>
 ClassMethod GetMembersForFilter(DataSource As %String, Filter As %String) As %ListOfObjects
 {
-	set st = ##class(%DeepSee.Dashboard.Utils).%GetMembersForFilter(DataSource,Filter,.tMembers,.tDefaultFilterValue,,.tRelatedFilters,0,,.tValueList)
+	set st = ##class(MDX2JSON.DashboardUtils).%GetMembersForFilter(DataSource,Filter,.tMembers,.tDefaultFilterValue,,.tRelatedFilters,0,,.tValueList)
 	set members = $$$NewDynObjList
 
 	set key = $order(tMembers(""))
@@ -411,7 +410,7 @@ ClassMethod GetDashboardInfo(Dashboard As %DeepSee.Dashboard.Definition) As %ZEN
 ClassMethod GetWidgetCube(Dashboard As %DeepSee.Dashboard.Definition, WidgetNumber As %Integer) As %String
 {
 	set datasource = ..DetermineWidgetDataSource(Dashboard, WidgetNumber)
-	
+
 	if ##class(%DeepSee.UserLibrary.Utils).%FolderItemExists(datasource,.id) {
 		set cube = ##class(%DeepSee.Dashboard.Pivot).cubeNameGetStored(id)
 	} else {
@@ -431,14 +430,14 @@ ClassMethod DetermineWidgetDataSource(Dashboard As %DeepSee.Dashboard.Definition
 {
 	set datasource = Dashboard.widgets.GetAt(WidgetNumber).dataSource
 	return:datasource'="" datasource
-	
+
 	set datalink =  Dashboard.widgets.GetAt(WidgetNumber).dataLink
 	return:datalink="" ""
 	set WidgetNumber = ..GetWidgetNumberByName(Dashboard, datalink)
 	return ..DetermineWidgetDataSource(Dashboard, WidgetNumber)
 }
 
-/// Determines position of a widget in dashboard's widget list. 
+/// Determines position of a widget in dashboard's widget list.
 ClassMethod GetWidgetNumberByName(Dashboard As %DeepSee.Dashboard.Definition, WidgetName As %String) As %Integer
 {
 	for i=1:1:Dashboard.widgets.Count() {
@@ -456,29 +455,29 @@ ClassMethod GetWidgetNumberByName(Dashboard As %DeepSee.Dashboard.Definition, Wi
 /// The type can be: "%Integer", "%Boolean", or "ENUM^caption1:value1,caption2:value2".<br/>
 /// <var>caption</var> is the localized caption of the setting.<br/>
 /// <var>title</var> is an optional tooltip displayed for the setting.<br/>
-/// Custom portlet settings can be controlled using the SETTINGS=PORTLET parameter in the 
-/// dashboard URL 
+/// Custom portlet settings can be controlled using the SETTINGS=PORTLET parameter in the
+/// dashboard URL
 /// set list = ##class(MDX2JSON.Dashboard).KPISettongsToArray("DeepSee.Model.PortletDemo.ClockPortlet")
 ClassMethod PortletSettingsToArray(Class As %Dictionary.CacheClassname) As %ListOfObjects
 {
 	do $classmethod(Class, "%OnGetPortletSettings", .info)
 	set list = $$$NewDynObjList
-	
+
 	set key = $o(info(""))
 	while key'="" {
 		set settingInfo = info(key)
-		
+
 		set setting = $$$NewDynObj
 		set setting.name = $lg(settingInfo, 1)
 		set setting.value = $lg(settingInfo, 2)
 		set setting.type = $lg(settingInfo, 3)
 		set setting.caption = $lg(settingInfo, 4)
 		set setting.title = $lg(settingInfo, 5)
-		
-		$$$Insert(list, setting)	
-		set key = $o(info(key))	
+
+		$$$Insert(list, setting)
+		set key = $o(info(key))
 	}
-	
+
 	return list
 }
 

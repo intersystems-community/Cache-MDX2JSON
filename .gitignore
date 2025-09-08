@@ -1,2 +1,7 @@
 sc-list.txt
 .vscode/settings.json
+.iris_init
+docker-compose.yml
+Dockerfile
+iris.script
+merge.cpf
