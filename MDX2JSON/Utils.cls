@@ -26,7 +26,7 @@ ClassMethod GetResultSetFromQuery(CubeKey As %String, QueryKey As %String, Outpu
 	set RS = ##class(MDX2JSON.ResultSet).%New()
 	set Status = RS.%PrepareKey(CubeKey, QueryKey)
 	return:$$$ISERR(Status) RS
-	
+
 	do:$$$ISOK(Status) RS.%GetQueryText()
 	return RS
 }
@@ -35,7 +35,7 @@ ClassMethod ExecuteResultSet(RS As MDX2JSON.ResultSet, QueryKey As %String = "",
 {
 	set Params = ""
 	set Status = $$$OK
-	
+
 	if ((Timeout = 0) || (Timeout = "")) {
 		set Status = RS.%ExecuteAsynch(QueryKey ,.Params, $$$YES)
 	} else {
@@ -44,12 +44,12 @@ ClassMethod ExecuteResultSet(RS As MDX2JSON.ResultSet, QueryKey As %String = "",
 		set QueryStatus = 0
 		while (TimeElapsed < Timeout)&&(QueryStatus<100)&&($$$ISOK(Status)) {
 			hang .01
-			set TimeElapsed = TimeElapsed + .01		
+			set TimeElapsed = TimeElapsed + .01
 			// Check query status again
 			set QueryStatus = RS.%GetStatus(,.Status)
 		}
 	}
-	
+
 	quit Status
 }
 
@@ -69,16 +69,16 @@ ClassMethod WriteJSONfromMDX(MDX As %String, Timeout As %Integer = 0) As %Status
 	set cube = ##class(%DeepSee.Utils).%IsCubeCompound(RS.%Cube) // check if cube is compound type
 	return:$$$ISERR(tSC) tSC
 
-	if cube // if cube is compound then we prepare it using %ZEN.Auxiliary.jsonMDXProvider 
+	if cube // if cube is compound then we prepare it using %ZEN.Auxiliary.jsonMDXProvider
 	{
 		Set tProvider = ##class(%ZEN.Auxiliary.jsonMDXProvider).%New()
 		Set tProvider.mdxQuery = MDX
-		Set tWait = %session.AppTimeout - $S(%session.AppTimeout>2:2,1:0)	// Send something back jst before the appTimeout is reached	
+		Set tWait = %session.AppTimeout - $S(%session.AppTimeout>2:2,1:0)	// Send something back jst before the appTimeout is reached
                 Set tSC = ##class(%DeepSee.REST.v1.DataServer).%WaitForProviderResults(tProvider,tWait)
-	
+
 		set tSC = ..ExecuteResultSet(RS, ,Timeout)
 		return:$$$ISERR(tSC) tSC
-		
+
 		set obj = RS.ToProxyObject(.tSC)
 		return:$$$ISERR(tSC) tSC
 
@@ -93,12 +93,12 @@ ClassMethod WriteJSONfromMDX(MDX As %String, Timeout As %Integer = 0) As %Status
 		try {xecute ^DeepSee.AuditQueryCode} catch {}
 
 		$$$DynObjToJSON(obj)
-	
+
 	}else{ // if cube is not compound execute the query in usual way
 
 		set tSC = ..ExecuteResultSet(RS, ,Timeout)
 		return:$$$ISERR(tSC) tSC
-		
+
 		set obj = RS.ToProxyObject(.tSC)
 		return:$$$ISERR(tSC) tSC
 
@@ -125,11 +125,11 @@ ClassMethod WriteJSONfromQuery(CubeKey As %String, QueryKey As %String, Timeout 
 
 	set st = ..ExecuteResultSet(RS, , Timeout)
 	return:$$$ISERR(st) st
-		
+
 	set obj = RS.ToProxyObject(.st)
 	return:$$$ISERR(st) st
 	$$$DynObjToJSON(obj)
-	
+
 	return $$$OK
 }
 
@@ -141,40 +141,40 @@ ClassMethod GetSQLValues(pSQL, Output pValues As %String, Output tResultSet As %
 	set st = $$$OK
 	Set tResultSet = ##class(%SQL.Statement).%ExecDirect(,pSQL)
 		set tCount = 0
-		
+
 		while tResultSet.%Next()
 		{
 				set lValue = ""
 				for i=1:1:tResultSet.%GetMetadata().columnCount
-				{	
-					set sNameList(i) = tResultSet.%GetMetadata().columns.GetAt(i).label 
+				{
+					set sNameList(i) = tResultSet.%GetMetadata().columns.GetAt(i).label
 					set lValue = lValue _ $lb(tResultSet.%Get(sNameList(i))) // append next column to the list
 				}
 
 			Set tCount = tCount + 1
-			set pValues(tCount) = lValue 
-		}	
+			set pValues(tCount) = lValue
+		}
 	return st
 }
 
-/// This method provides listing execution for KPI. 
-/// <b>tKPI<b> as a name of KPI class. <b>pFilters<b> not yet implemented 
-/// as a <b>pSelection<b>. Thats for future use. 
+/// This method provides listing execution for KPI.
+/// <b>tKPI<b> as a name of KPI class. <b>pFilters<b> not yet implemented
+/// as a <b>pSelection<b>. Thats for future use.
 ClassMethod WriteDrillthroughJSONKPI(tKPI As %String, pFilters As %String, pSelection As %String) As %Status
 {
 
 	Set st = $$$OK
-	
+
 	Set tKpiClassName = ##class(%DeepSee.Utils).%GetKPIClass(tKPI,.tSC) // get name of a kpi from REST
 	set kpitype = $classmethod(tKpiClassName, "%GetSourceType")
-	
+
 	if (kpitype="sql") {
 		set pSQL = $classmethod(tKpiClassName,"%OnGetListingSQL",pFilters,pSelection) // invoke corresponding method from given kpi and get sql query
 		set values = ..GetSQLValues(pSQL, .pValue, .tResultSet)
 
 		for i=1:1:tResultSet.%GetMetadata().columnCount
-		{	
-			set pList(i) = tResultSet.%GetMetadata().columns.GetAt(i).label 
+		{
+			set pList(i) = tResultSet.%GetMetadata().columns.GetAt(i).label
 			set pList(i, "columnNo") = i
 			Set tKpiPropIdx = $O(pList(""),1,tProperty)
 			Set tKpiPropList = ""
@@ -182,13 +182,13 @@ ClassMethod WriteDrillthroughJSONKPI(tKPI As %String, pFilters As %String, pSele
 				Set tKpiPropList = tKpiPropList _ $LB(tProperty)
 				Set tKpiPropArray(tKpiPropIdx) = $LB(tProperty,$G(pList(tKpiPropIdx,"name")),$G(pList(tKpiPropIdx,"columnNo")))
 				Set tKpiPropIdx = $O(pList(tKpiPropIdx),1,tProperty)
-				
+
 		}
 
 		}
 			Set tKpiSC = $classmethod(tKpiClassName,"%GetKPIValueArray",tKpiClassName,,.tKpiPropList,.tFilters)
 
-			Set tSC = ##class(%DeepSee.REST.v1.DataServer).%CreateObjectFromArray(.pValue,tKpiPropList,.tValueObj)		
+			Set tSC = ##class(%DeepSee.REST.v1.DataServer).%CreateObjectFromArray(.pValue,tKpiPropList,.tValueObj)
 			If $$$ISERR(tSC) Quit
 
 			Set tSC = ##class(%DeepSee.REST.v1.DataServer).%CreateObjectFromArray(.tKpiPropArray,$LB("name","caption","columnNo"),.tPropObj)
@@ -198,13 +198,13 @@ ClassMethod WriteDrillthroughJSONKPI(tKPI As %String, pFilters As %String, pSele
 			Set tProvider = ##class(%ZEN.Auxiliary.jsonMDXProvider).%New()
 			Set tInfoObj = tProvider.%ConstructNewDynamicObject()
 			Set tResultObj = tProvider.%ConstructNewDynamicObject()
-			
+
 			Set:$IsObject(tPropObj.children) tResultObj.Properties = tPropObj.children
 			Set:$IsObject(tValueObj.children) tResultObj.Series = tValueObj.children
-		
+
 			Set tInfoObj.Error = tProvider.%StatusToDynamicObject(tKpiSC)
 			Set tInfoObj.KpiName = tKpiClassName
-			
+
 			Set tKpiObj = tProvider.%ConstructNewDynamicObject()
 			Set tKpiObj.Info = tInfoObj
 			Set tKpiObj.Result = tResultObj
@@ -212,10 +212,10 @@ ClassMethod WriteDrillthroughJSONKPI(tKPI As %String, pFilters As %String, pSele
 			Set tSC = tProvider.%ObjectToJSON(tKpiObj)
 
 		}else{
-		
+
 			quit $$$ERROR($$$GeneralError, "KPI type " _ kpitype _ " not supported")
 	}
-	
+
 	return st
 }
 
@@ -227,7 +227,7 @@ ClassMethod WriteJSONPfromMDX(pMDX As %String) As %Status
 	return:$$$ISERR(st) st
 	set st = ..ExecuteResultSet(RS)
 	return:$$$ISERR(st) st
-	
+
 	set PageSize = 1000
 	set CurrPage = 1
 	set st = RS.%OutputJSON(PageSize,CurrPage,,PageSize)
@@ -256,7 +256,7 @@ ClassMethod WriteDrillthroughJSON(pMDX As %String) As %Status
 	return:$$$ISERR(st) st
 	set st = ..ExecuteResultSet(RS)
 	return:$$$ISERR(st) st
-	
+
 	set SQL = RS.%GetListingSQL()
 	do ##class(%ZEN.Auxiliary.altJSONSQLProvider).%WriteJSONFromSQL(,SQL,,$$$MaxCacheInt)
 
@@ -271,7 +271,7 @@ ClassMethod WriteXMLAfromMDX(pMDX As %String) As %Status
 	return:$$$ISERR(st) st
 	set st = ..ExecuteResultSet(RS)
 	return:$$$ISERR(st) st
-	
+
 	set st = RS.%OutputXMLA()
 
 	return st
@@ -285,7 +285,7 @@ ClassMethod WriteFiltersForMDX(pMDX As %String) As %Status
 	return:$$$ISERR(st) st
 	set st = ..ExecuteResultSet(RS)
 	return:$$$ISERR(st) st
-	
+
 	set st=RS.%GetFiltersForCellRange(.filters,0,0,RS.%GetAxisSize(2),RS.%GetAxisSize(1),.measure)
 
 	return st
@@ -301,7 +301,7 @@ ClassMethod WriteFiltersForDataSource(pDataSource As %String, pValues As %Boolea
 	return:($d(tFilters)=0) $$$ERROR($$$GeneralError,"Empty Filter values array. DataSource does not exist?")
 
 	if $isobject($g(pRequestedFilters)) {
-		set key = $order(tFilters(""))		
+		set key = $order(tFilters(""))
 		for {
 			quit:key=""
 			kill:'pRequestedFilters.Find($lg(tFilters(key),2)) tFilters(key)
@@ -312,14 +312,14 @@ ClassMethod WriteFiltersForDataSource(pDataSource As %String, pValues As %Boolea
 	if (pValues=1) {
 		set key = $order(tFilters(""))
 		while (key '= "") {
-			set st = ##class(%DeepSee.Dashboard.Utils).%GetMembersForFilter(pDataSource,$lg(tFilters(key),2),.tMembers,.tDefaultFilterValue,pSearchKey,.pRelatedFilters,0,,.tValueList)
+			set st = ##class(MDX2JSON.DashboardUtils).%GetMembersForFilter(pDataSource,$lg(tFilters(key),2),.tMembers,.tDefaultFilterValue,pSearchKey,.pRelatedFilters,0,,.tValueList)
 			return:$$$ISERR(st) st
 			if +$g(tMembers) set tMembers = $g(tFilters(key)) // check if list contain simple number and replace it with proper query
 			merge tFilters(key) = tMembers // merge filter values
 			set key = $order(tFilters(key))
 	   	}
 	}
-   	
+
 
    	Set st = ##class(%ZEN.Auxiliary.altJSONProvider).%ArrayToJSON($lb("name", "path", "info"),.tFilters)
 	return st
@@ -329,29 +329,29 @@ ClassMethod WriteFiltersForDataSource(pDataSource As %String, pValues As %Boolea
 /// <b>pDataSource</b> - pivot fullName.
 ClassMethod GetDataSource(pDataSource As %String)
 {
-	
+
 	set st = $$$OK
 	try {
 
 		if ($FIND(pDataSource, ".pivot") = ($LENGTH(pDataSource) + 1) && pDataSource '="") {
 			set st = ..OpenPivotByName(pDataSource, .dataSource)
 			return:($$$ISERR(st)) st
-			
+
 			if (dataSource.mdx="") {
 				set st = ##class(MDX2JSON.Dashboard).GetMdx(pDataSource, .mdx, .basemdx)
 				return:($$$ISERR(st)) st
 				set dataSource.mdx = mdx
 			}
 			set st = ##class(%ZEN.Auxiliary.jsonProvider).%ObjectToJSON(dataSource, .out)
-			
+
 		}
 
-		
+
 	} catch ex {
 		set st = ex.AsStatus()
 		do ex.Log() // logs error info to System Error log
 	}
-	
+
 	return st
 }
 
@@ -361,19 +361,19 @@ ClassMethod GetDataSource(pDataSource As %String)
 ClassMethod OpenPivotByName(PivotName As %Integer, Output Pivot As %DeepSee.Dashboard.Pivot) As %Status
 {
 	 kill Pivot
-	 
+
 	 set id = ""
 	 set global = ##class(MDX2JSON.DashboardRS).#global
 	 set pivotclass = "%DeepSee.Dashboard.Pivot"
 	 for {
 	 	set id = $order(@global@(id))
 	 	quit:id=""
-	 		
+
 	 	/// first we check that it's a pivot (not a dashboard, etc.)
 		set oid = ##class(%DeepSee.UserLibrary.FolderItem).%ComposeOid(id)
 	    do ##class(%DeepSee.UserLibrary.FolderItem).%OnDetermineClass(oid, .class)
 	    CONTINUE:class'=pivotclass
-	    
+
 	    /// second we check that it's the one we need
 	    quit:..GetPivotFullName(id)=PivotName
 	 }
@@ -413,10 +413,10 @@ ClassMethod GetWidgetsList(pDashName As %String) As %Status
 	try {
 		set st = ##class(MDX2JSON.Dashboard).OpenDashboardByName(pDashName, .dash)
 		return:($$$ISERR(st)) st
-		
+
 		set canaaccess = dash.%CheckResource()
 		return:canaaccess=0 $$$ERROR($$$GeneralError,"Access denied to " _ pDashName)
-		
+
 		set st = ##class(MDX2JSON.Dashboard).WidgetsToProxyObject(dash, .widgetlist)
 		return:($$$ISERR(st)) st
 		w "" // weird hack required for 15.3
@@ -436,13 +436,13 @@ ClassMethod GetDashboard(pDashName As %String) As %Status
 
 		set st = ##class(MDX2JSON.DashboardFilters).OpenDashboardByName(pDashName, .dash)
 		return:($$$ISERR(st)) st
-		
+
 		set st = ##class(MDX2JSON.DashboardFilters).WidgetsToProxyObject(dash, .widgetlist)
 		return:($$$ISERR(st)) st
 		w "" // weird hack required for 15.3
-		
+
 		set %dsDashboard = pDashName
-		
+
 		// check if audit global hold something and execute it
 		try {xecute ^DeepSee.AuditCode} catch {}
 
@@ -478,7 +478,7 @@ ClassMethod SetAuditDash() As %Status
 	quit $$$OK
 }
 
-/// zw ^AuditLogQuery to get the query audit readings 
+/// zw ^AuditLogQuery to get the query audit readings
 /// zw ^AuditLogCube to get the cube audit readings
 /// zw ^AuditLogRS to get the RS audit readings
 ClassMethod SetAuditQuery() As %Status
@@ -494,21 +494,21 @@ ClassMethod SetAuditQuery() As %Status
 ClassMethod GetFormat() As %Status
 {
 	set st = $$$OK
-	set datelist="DD Mmm [YY]YY^MM/DD/[YY]^DD Mmm [YY]YY^YYYY-MM-DD^DD/MM/[YY]YY^Mmm D, YYYY^Mmm D YYYY^Mmm DD [YY]YY^YYYYMMDD^Mmmmmm D, YYYY^W^Www^Wwwwww^[D]D/[M]M/YYYY^nnn"	
+	set datelist="DD Mmm [YY]YY^MM/DD/[YY]^DD Mmm [YY]YY^YYYY-MM-DD^DD/MM/[YY]YY^Mmm D, YYYY^Mmm D YYYY^Mmm DD [YY]YY^YYYYMMDD^Mmmmmm D, YYYY^W^Www^Wwwwww^[D]D/[M]M/YYYY^nnn"
 	set timelist="hh:mm:ss,hh:mm,hh:mm:ss[AM/PM],hh:mm[AM/PM]" // lists taken from %CSP.UI.Portal.NLSEdit - DrawProperties
 	set proplist = "AM,DateSeparator,DecimalSeparator,MinusSign,MonthAbbr,MonthName,NumericGroupSeparator,NumericGroupSize,PM,PlusSign,TimePrecision,TimeSeparator,WeekdayAbbr,WeekdayName"
 	set obj = ##class(%ZEN.proxyObject).%New()
-	
+
 	try {
 		for i = 1:1:$L(proplist, ",") {
 			set property = $P(proplist, ",", i)
 			do obj.%DispatchSetProperty(property,##class(%SYS.NLS.Format).GetFormatItem(property))
 		}
-		
+
 		// that's why we cant just do ##class(%ZEN.Auxiliary.jsonProvider).%ObjectToJSON()
 		set obj.DateFormat = $P(datelist, "^",##class(%SYS.NLS.Format).GetFormatItem("DateFormat"))
 		set obj.TimeFormat = $P(timelist, ",",##class(%SYS.NLS.Format).GetFormatItem("TimeFormat"))
-		
+
 		do obj.%ToJSON()
 	} catch ex {
 		set st = ex.AsStatus()
@@ -520,7 +520,7 @@ ClassMethod ExecuteAction(Cube As %String, Action As %String, Context As %ZEN.pr
 {
 	set st = $$$OK
 	set Cube = $$$UPPER(Cube)
-	set:$FIND(Cube, ".KPI") Cube = $TRANSLATE(Cube, ".KPI", "") // cut off extension ".kpi" from Cube name if there any 
+	set:$FIND(Cube, ".KPI") Cube = $TRANSLATE(Cube, ".KPI", "") // cut off extension ".kpi" from Cube name if there any
 	set ActionClass = $G($$$DeepSeeMetaGLVN("cubes",Cube,"actionClass"), $G($$$DeepSeeMetaGLVN("kpis",Cube)))
 	if (ActionClass'="") {
 		set st = $classmethod(ActionClass,"%OnDashboardAction",Action,Context)
@@ -529,26 +529,26 @@ ClassMethod ExecuteAction(Cube As %String, Action As %String, Context As %ZEN.pr
 }
 
 /// Return a list of available pivot variables for <var>Cupe</var>.
-/// See correspontding method from DeepSee.REST.v1.InfoServer 
+/// See correspontding method from DeepSee.REST.v1.InfoServer
 ClassMethod WritePivotVariablesForCube(Cube As %String) As %Status
 {
 	set st = $$$OK
 	try {
-		quit:'##class(%DeepSee.Utils).%CubeExists(Cube, .st) 
-		
+		quit:'##class(%DeepSee.Utils).%CubeExists(Cube, .st)
+
 		set st = ##class(%DeepSee.Utils).%GetPivotVariables(Cube, .vars)
-		
+
 		if $$$ISOK(st)&&('$data(vars)) {
 			set st = $$$ERROR($$$GeneralError,$$$FormatText("No pivot variables available for %1", Cube))
 		}
 		quit:$$$ISERR(st)
-		
+
 		set st = ##class(%ZEN.Auxiliary.jsonProvider).%ArrayToJSON($lb("name", "caption", "defValue", "context", "desc"),.vars)
 	}
 	catch ex {
 		set st = ex.AsStatus()
 	}
-	
+
 	quit st
 }
 
@@ -560,17 +560,17 @@ ClassMethod CreateAddons(Addons As %ListOfDataTypes) As %Status
 		set file = $$$ListGet(Addons, i)
 		set file = ##class(%File).GetFilename(file)
 		set addon = $p(file, ".", 1, *-1) // remove extension
-		
+
 		set class = base _ addon
-		
+
 		set sc1 = ##class(%Dictionary.CacheClassname).IsValid(class)
 		if $$$ISERR(sc1) {
 			set sc = $$$ADDSC(sc, sc1)
 			CONTINUE
 		}
-		
+
 		if $$$comClassDefined(class) {
-			// compiled class exists - we're set 
+			// compiled class exists - we're set
 		} elseif $$$defClassDefined(class) {
 			// class exists but uncompiled - add to compile local
 			set classes(class) = ""
@@ -579,10 +579,10 @@ ClassMethod CreateAddons(Addons As %ListOfDataTypes) As %Status
 			// create and add to compile local
 			set sc1 = ..CreateAddonClass(class)
 			set sc = $$$ADDSC(sc, sc1)
-			set:$$$ISOK(sc1) classes(class) = "" 
-		}	
+			set:$$$ISOK(sc1) classes(class) = ""
+		}
 	}
-	
+
 	// compile classes if we have any
 	if $d(classes)=10 {
 		set sc1 = $system.OBJ.Compile(.classes, "cuks /checkuptodate=expandedonly /displaylog=0 /displayerror=0")
@@ -596,31 +596,31 @@ ClassMethod CreateAddons(Addons As %ListOfDataTypes) As %Status
 ClassMethod CreateAddonClass(Class As %Dictionary.CacheClassname) As %Status
 {
 	quit:$$$defClassDefined(Class) $$$OK
-	
+
 	set classObj = ##class(%Dictionary.ClassDefinition).%New(Class)
 	set classObj.Super = "%DeepSee.Component.Portlet.abstractPortlet"
 	set classObj.GeneratedBy = "MDX2JSON and DeepSeeWeb"
 	set classObj.Description = "Portlet for MDX2JSON and DeepSeeWeb. Autogenerated. Do not edit."
-	
+
 	set propertyObj = ##class(%Dictionary.PropertyDefinition).%New(Class _ ":Data")
 	set propertyObj.Type = "%String"
 	do classObj.Properties.Insert(propertyObj)
-	
+
 	set parameterOnj = ##class(%Dictionary.ParameterDefinition).%New(Class _ ":USECOMMONDIRECTORY")
 	set parameterOnj.Default = 1
 	do classObj.Parameters.Insert(parameterOnj)
-	
+
 	set methodObj = ##class(%Dictionary.MethodDefinition).%New(Class _ ":%OnGetPortletSettings")
 	set methodObj.ClassMethod = $$$YES
 	set methodObj.FormalSpec = "*pInfo:%List,&pSettings"
 	set methodObj.ReturnType = "%Status"
-	do methodObj.Implementation.Write(	$c(9) _ "Kill pInfo" _ $$$NL _ 
-										$c(9) _ "Set pInfo = 1" _ $$$NL _ 
-										$c(9) _ "Set pInfo(1) = $lb(""Data"", , , ""Data"", ""Data setting"")" _ $$$NL _ 
+	do methodObj.Implementation.Write(	$c(9) _ "Kill pInfo" _ $$$NL _
+										$c(9) _ "Set pInfo = 1" _ $$$NL _
+										$c(9) _ "Set pInfo(1) = $lb(""Data"", , , ""Data"", ""Data setting"")" _ $$$NL _
 										$c(9) _ "Quit $$$OK")
 
 	do classObj.Methods.Insert(methodObj)
-	
+
 	quit classObj.%Save()
 }
 
@@ -630,21 +630,21 @@ ClassMethod CreateAddonClass(Class As %Dictionary.CacheClassname) As %Status
 ClassMethod AddWidget(sWidget As %String, sDashboard As %String, key As %String) As %Status
 {
 	set st = $$$OK
-	set dExist=##class(%DeepSee.Dashboard.Utils).%DashboardExists(sDashboard) 
+	set dExist=##class(%DeepSee.Dashboard.Utils).%DashboardExists(sDashboard)
 
 	// Check if dashboard exists
-	If (dExist '= 1) 
+	If (dExist '= 1)
 	{
 		Quit $$$ERROR($$$GeneralError,"Dashboard " _ sDashboard _ " does not exists")
 	}
 	Set tDash=##class(%DeepSee.Dashboard.Utils).%OpenDashboard(sDashboard, .st)
-	
+
 	// Check if widget with name is exists
-	set isExists = 0 
+	set isExists = 0
 	for i=1:1:tDash.widgets.Count()
 	{
 		if (tDash.widgets.GetAt(i).name = sWidget.name)
-		{	
+		{
 			set isExists = 1
 		}
 	}
@@ -665,8 +665,8 @@ ClassMethod AddWidget(sWidget As %String, sDashboard As %String, key As %String)
 			do tDash.%Save()
 		}
 
-	} else {		
-		// Edit exists widget				
+	} else {
+		// Edit exists widget
 		for i=1:1:tDash.widgets.Count()
 		{
 
@@ -687,35 +687,35 @@ ClassMethod AddWidget(sWidget As %String, sDashboard As %String, key As %String)
 			set st = ..UpdateWidget(changed, sWidget)
 			if (st = $$$OK) // checking for errors in UpdateWidget
 			{
-				do tDash.%Save()	
-			}	
+				do tDash.%Save()
+			}
 		}
-	}		
-		
+	}
+
 	return st
 }
 
 /// This method remove widget from dashboard directly from DeepSeeWeb
-/// it takes widget name as unique identifier and dashboard name 
+/// it takes widget name as unique identifier and dashboard name
 ClassMethod DeleteWidget(wName As %String, sDashboard As %String) As %Status
 {
 	set st = $$$OK
 
-	set dExist=##class(%DeepSee.Dashboard.Utils).%DashboardExists(sDashboard) 
+	set dExist=##class(%DeepSee.Dashboard.Utils).%DashboardExists(sDashboard)
 
 	// Check if dashboard exists
-	If (dExist '= 1) 
+	If (dExist '= 1)
 	{
 		Quit $$$ERROR($$$GeneralError,"Dashboard " _ sDashboard _ " does not exists")
 	}
 	Set tDash=##class(%DeepSee.Dashboard.Utils).%OpenDashboard(sDashboard, .st)
 
 	// Check if widget with name is exists
-	set isExists = 0 
+	set isExists = 0
 	for i=1:1:tDash.widgets.Count()
 	{
 		if (tDash.widgets.GetAt(i).name = wName)
-		{	
+		{
 			set isExists = 1
 		}
 	}
@@ -724,7 +724,7 @@ ClassMethod DeleteWidget(wName As %String, sDashboard As %String) As %Status
 	{
 		for i=1:1:tDash.widgets.Count()
 		{
-			if (tDash.widgets.GetAt(i).name = wName) 
+			if (tDash.widgets.GetAt(i).name = wName)
 			{
 				do tDash.widgets.RemoveAt(i)
 				do tDash.%Save()
@@ -739,7 +739,7 @@ ClassMethod DeleteWidget(wName As %String, sDashboard As %String) As %Status
 	return st
 }
 
-/// the collection of necessary parameters for building widget 
+/// the collection of necessary parameters for building widget
 ClassMethod UpdateWidget(widgetToUpdate As %DeepSee.Dashboard.Widget, data As %ZEN.proxyObject) As %Status
 {
 	set st = $$$OK
@@ -753,10 +753,10 @@ ClassMethod UpdateWidget(widgetToUpdate As %DeepSee.Dashboard.Widget, data As %Z
 	{
 		set widgetToUpdate.dataSource = data.dataSource
 	}
-	
+
 	set widgetToUpdate.dataLink = data.dataLink
-	
-	if (data.type = "pivot") 
+
+	if (data.type = "pivot")
 	{
 		set widgetToUpdate.type = "pivot"
 		set widgetToUpdate.subtype = "pivot"
