@@ -208,7 +208,7 @@ ClassMethod %GetMembersForFilter(pDataSource As %String, pFilter As %String, Out
 						If $E(tSearch,1,2)="&[" {
 							Set tSearch = $E(tSearch,3,*-1)
 						}
-						Set tSC = ##class(MDX2JSON.DashboardUtils).%GetMembersForFilter(pDataSource,pFilter,.tMembers,.pDefaultValue,tSearch,.pRelatedFilters,pCalcOnly,pRangeMode)
+						Set tSC = ##class(MDX2JSON.DashboardUtils).%GetMembersForFilter(pDataSource,pFilter,.tMembers,.pDefaultValue,tSearch,.pRelatedFilters,pCalcOnly,pRangeMode, MaxLen)
 
 						Set tMbr = $O(tMembers(""))
 						While tMbr'="" {
