@@ -19,6 +19,8 @@ Method ToProxyObject(Output pStatus As %Status) As %ZEN.proxyObject
 		return ""
 	}
 
+	set tQueryKey = ..%QueryKey
+
 	/*set st = ..%GetQueryStatus(..%Cube,tQueryKey)
 	if (st < 100) {
 		hang 1
@@ -33,7 +35,7 @@ Method ToProxyObject(Output pStatus As %Status) As %ZEN.proxyObject
 	try {			
 		set obj.Info = ..InfoToProxyObject() // basic info about cube and query
 		quit:obj.Info.percentDone<100
-				
+
 		set obj.Cols = ..AxesToListOfObjects() // all axes
 		set obj.Data = ..DataToListOfDataTypes() // array of all cells, left-to-right, up-to-down
 	} catch ex {
@@ -77,7 +79,7 @@ Method InfoToProxyObject() As %ZEN.proxyObject
  	set info.numericGroupSeparator = ##class(%SYS.NLS.Format).GetFormatItem("NumericGroupSeparator")
 	set info.numericGroupSize = ##class(%SYS.NLS.Format).GetFormatItem("NumericGroupSize")
 	set info.decimalSeparator = ##class(%SYS.NLS.Format).GetFormatItem("DecimalSeparator")
-									
+
 	return info
 }
 
@@ -93,10 +95,11 @@ Method AxesToListOfObjects() As %ListOfObjects
 	}
 
 	set axes=$$$NewDynObjList
+
 	for a = 1:1:tAxisCount {
 		set tAxisSize(a) = ..%GetAxisSize(a)
 		set tAxisKeys(a) = $G($$$DeepSeeResultsGLVN(tCubeIndex,tQueryKey,"axis",a))
-		$$$Insert(axes,..ProcessOneAxis(tCubeIndex,tAxisKeys(a),a,tAxisSize(a)))
+		$$$Insert(axes,..ProcessOneAxis(tCubeIndex,tAxisKeys(a),a))
 	}
 
 	if ($$$ListSize(axes)=0) {
@@ -106,39 +109,13 @@ Method AxesToListOfObjects() As %ListOfObjects
 	return axes
 }
 
-Method ProcessOneAxis(CubeIndex, AxisKey, AxisNumber, AxisSize) As %ZEN.proxyObject [ Internal ]
+Method ProcessOneAxis(CubeIndex, AxisKey, AxisNumber) As %ZEN.proxyObject [ Internal ]
 {
 	set tCubeName = $$$UPPER(..%Cube)
 	set tQueryKey = ..%QueryKey
 
-	set axis = ..LoopProcessingAxisCells(CubeIndex, AxisKey, tCubeName, tQueryKey, AxisNumber, 1,AxisSize)
-
-	return axis
-}
-
-Method LoopProcessingAxisCells(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, Node, AxisSize) As %ZEN.proxyObject [ Internal ]
-{
-
 	set axis=$$$NewDynObj
-
-	if ($D($$$DeepSeeAxisGLVN(CubeIndex, AxisKey, "axes", Node, "ch")) = 10) {
-		set axis.tuples = $$$NewDynObjList
-		for i=1:1:AxisSize
-		{
-			set key = $G(@..%ResultCacheLocation@(..%CubeKey,..%QueryKey,"leaf",AxisNumber,i))
-			set children = ..ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, key)
-			// Append children to cell
-			if $isobject(children) {
-				if ((children.%IsA("%ZEN.proxyObject")) || (children.%IsA("%Library.Object"))) {
-					$$$Insert(axis.tuples,children)
-				} elseif ((children.%IsA("%Collection.AbstractList")) || (children.%IsA("%Library.Array"))) {
-					for i=1:1:$$$ListSize(children) {
-						$$$Insert(axis.tuples,$$$ListGet(children,i))
-					}
-				}
-			}
-		}
-	}
+	set axis.tuples = ..ProcessOneAxisCell(CubeIndex, AxisKey, tCubeName, tQueryKey, AxisNumber, 1)
 
 	return axis
 }
@@ -146,31 +123,54 @@ Method LoopProcessingAxisCells(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumbe
 Method ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, Node) As %ZEN.proxyObject [ Internal ]
 {
 	set cell=$$$NewDynObj
+
 	set tNode = $G($$$DeepSeeAxisGLVN(CubeIndex,AxisKey,"axes",Node))
+
 	set cell.caption = ##class(%DeepSee.UserPortal.Utils).%ResolveText($LG(tNode,5)) // text caption
 	set cell.vis = $LG(tNode,2) // visibility helper - does not help (apperently it shows if the cell is the lowest level)  
-	
+
+	// now we process cell children, if any exist
+	if ($D($$$DeepSeeAxisGLVN(CubeIndex, AxisKey, "axes", Node, "ch")) = 10) {
+		set cell.children = $$$NewDynObjList
+		set key = $O($$$DeepSeeAxisGLVN(CubeIndex, AxisKey, "axes", Node, "ch", ""))
+		while (key'="") {
+			set children = ..ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, key)
+			// Append children to cell
+			if $isobject(children) {
+				if ((children.%IsA("%ZEN.proxyObject")) || (children.%IsA("%Library.Object"))) {
+					$$$Insert(cell.children,children)
+				} elseif ((children.%IsA("%Collection.AbstractList")) || (children.%IsA("%Library.Array"))) {
+					for i=1:1:$$$ListSize(children) {
+						$$$Insert(cell.children,$$$ListGet(children,i))
+					}
+				}
+			}
+
+			set key = $O($$$DeepSeeAxisGLVN(CubeIndex, AxisKey, "axes", Node, "ch", key))
+		}
+	}
+
 	//To filter out invisible сells
-	if (..IsCellNull(cell)=1) {
+	if (..IsCellNull(cell, AxisNumber, Node)=1) {
 		return cell.children
 	}
-	
+
 	try {
 		set cell.path = ##class(%DeepSee.Query.Engine).%GetSpecForAxisNode(CubeName, QueryKey, AxisNumber, Node) // MDX cell path
 		set:$e(cell.path)="(" cell.path = $e(cell.path, 2, *-1)  // removing redundant parentheses
 	} catch ex {
 		set cell.path = "path too long"		
 	}
-	
+
 	set cell.format = $LG(tNode,12) // format for numbers, eg: $## ###.##
 	set cell.total = $LG(tNode,8) //COUNT,AVG function
 	set cell.type = $LG(tNode,1) // mbr,cmbr,lit,exp
 	set cell.valueID = $LG(tNode,6) // id in mdx dimension for mbr, path for cmbr
 	set cell.title = $LG(tNode,23)
-	
+
 	set cell.headerStyle = $LG(tNode,19)
 	set cell.cellStyle = $LG(tNode,18)
-	
+
 	set info = $LG(tNode,18)
 	if info'="" { // extract aggregation information, leave the rest as css
 		set summaryposition = $f(info,"summary")
@@ -181,7 +181,7 @@ Method ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, No
 		}
 		set cell.style = info // css
 	}
-	
+
 	set tDimNo = $LG(tNode,9)
 	set tHierNo = $LG(tNode,10)
 	set tLevelNo = $LG(tNode,11)
@@ -190,7 +190,7 @@ Method ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, No
 	do ##class(%DeepSee.Utils).%GetDimensionCaption(CubeName,tDimNo, tHierNo,tLevelNo, .tAxisCaption)
 	set cell.dimension = tCaption // cube dimension taken from the name of the axes.
 	if (cell.dimension = "") {set cell.dimension = tCaption} // hack for assigne dimension property in case of empty dimension
-	
+
 
 	set:$$$Debug cell.visible = '..IsCellNull(cell,AxisNumber,Node)
 	set:$$$Debug cell.node = Node
@@ -198,10 +198,11 @@ Method ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, No
 	return cell
 }
 
-/// Determine if cell is an invisible system cell.
-Method IsCellNull(Cell)
+/// Determine if cell is an invisyble system cell.
+Method IsCellNull(Cell, AxisNumber, Node)
 {
- 	
+	return:((Cell.type = "axis") || (Cell.type = "set")) 1 // for top-level cells
+
 	return:(Cell.caption=0) 1 // typical caption for top-level cell
 	return:(Cell.caption=1) 1 // typical caption for top-level cell
 	return:(Cell.caption="") 1 // typical caption for top-level cell
@@ -209,11 +210,18 @@ Method IsCellNull(Cell)
 	//return:(path="") 1
 	set children = Cell.children
 	return:(($isobject(children)) && ($$$ListSize(children)>0)) 0 // cell has children
-	
-	// in case of cell type='lit'. the 'lit' cell always has the value vis=0, so we can skip it
-	// this is also true for type='axis' and type='set' so there is no need to check everything individually
-	return:(Cell.vis '= 0) 0 
-		
+
+	if (Cell.type'="lit") {
+		set key = $O($$$DeepSeeResultsGLVN(..%CubeKey, ..%QueryKey, "leaf", AxisNumber, ""))
+		while (key'="") {
+			return:(Node=$$$DeepSeeResultsGLVN(..%CubeKey, ..%QueryKey, "leaf", AxisNumber, key)) 0 //for leafs
+			set key = $O($$$DeepSeeResultsGLVN(..%CubeKey, ..%QueryKey, "leaf", AxisNumber, key))
+		}
+	} else {
+		/// lit cell: SELECT %LABEL("Const","Title") ON 0 FROM [HoleFoodsBudget]
+		/// but also a lot of top-pevel cells
+		return 'Cell.vis
+	}
 
 	return 1
 }
