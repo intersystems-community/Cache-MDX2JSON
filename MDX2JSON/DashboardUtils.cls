@@ -11,7 +11,7 @@ Class MDX2JSON.DashboardUtils Extends %DeepSee.Dashboard.Utils
 /// If <var>pCalcOnly</var> is true, then only return calculated members.<br/>
 /// If <var>pRangeMode</var> is true, then only return members that are valid for range selection (used by searchBox).<br/>
 /// If <var>pPreSelected</var> is a list of selected values; always display these items.<br/>
-ClassMethod %GetMembersForFilter(pDataSource As %String, pFilter As %String, Output pMembers As %List, Output pDefaultValue As %String, pSearchKey As %String = "", ByRef pRelatedFilters, pCalcOnly As %Boolean = 0, pRangeMode As %Boolean = 0, ByRef pPreSelected As %String) As %Status
+ClassMethod %GetMembersForFilter(pDataSource As %String, pFilter As %String, Output pMembers As %List, Output pDefaultValue As %String, pSearchKey As %String = "", ByRef pRelatedFilters, pCalcOnly As %Boolean = 0, pRangeMode As %Boolean = 0, ByRef pPreSelected As %String, MaxLen As %Integer = 1000) As %Status
 {
 	Set tSC = $$$OK
 	Try {
@@ -99,7 +99,7 @@ ClassMethod %GetMembersForFilter(pDataSource As %String, pFilter As %String, Out
 			}
 			Else {
 				// DP-421530 - Reduce number of members fetch to 100
-				Set tMaxMembers = 10000
+				Set tMaxMembers = MaxLen
 				Set tContext = "filter"		// DTB599
 				Set tMemberClass = ""
 				Set tCalcMode = $S(pRangeMode:-1,pCalcOnly:1,1:0)
@@ -208,7 +208,7 @@ ClassMethod %GetMembersForFilter(pDataSource As %String, pFilter As %String, Out
 						If $E(tSearch,1,2)="&[" {
 							Set tSearch = $E(tSearch,3,*-1)
 						}
-						Set tSC = ##class(%DeepSee.Dashboard.Utils).%GetMembersForFilter(pDataSource,pFilter,.tMembers,.pDefaultValue,tSearch,.pRelatedFilters,pCalcOnly,pRangeMode)
+						Set tSC = ##class(MDX2JSON.DashboardUtils).%GetMembersForFilter(pDataSource,pFilter,.tMembers,.pDefaultValue,tSearch,.pRelatedFilters,pCalcOnly,pRangeMode)
 
 						Set tMbr = $O(tMembers(""))
 						While tMbr'="" {
