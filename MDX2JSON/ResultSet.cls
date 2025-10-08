@@ -130,7 +130,7 @@ Method ProcessOneAxisCell(CubeIndex, AxisKey, CubeName, QueryKey, AxisNumber, No
 	set cell.vis = $LG(tNode,2) // visibility helper - does not help (apperently it shows if the cell is the lowest level)  
 
 	// now we process cell children, if any exist
-	if ($D($$$DeepSeeAxisGLVN(CubeIndex, AxisKey, "axes", Node, "ch")) = 10) {
+	if ($D($$$DeepSeeAxisGLVN(CubeIndex, AxisKey, "axes", Node, "ch")) = 10) && ($LG(tNode, 1)'="agg") {
 		set cell.children = $$$NewDynObjList
 		set key = $O($$$DeepSeeAxisGLVN(CubeIndex, AxisKey, "axes", Node, "ch", ""))
 		while (key'="") {
