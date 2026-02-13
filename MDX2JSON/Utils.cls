@@ -258,7 +258,25 @@ ClassMethod WriteDrillthroughJSON(pMDX As %String) As %Status
 	return:$$$ISERR(st) st
 	
 	set SQL = RS.%GetListingSQL()
-	do ##class(%ZEN.Auxiliary.altJSONSQLProvider).%WriteJSONFromSQL(,SQL,,$$$MaxCacheInt)
+	
+	set rs = ##class(%SQL.Statement).%ExecDirect(, SQL)
+	set list = []
+    
+    while rs.%Next() {
+        set row = {}
+        for i=1:1:rs.%ResultColumnCount {
+            set colName = rs.%GetMetadata().columns.GetAt(i).colName
+            set colValue = rs.%GetData(i)
+            do row.%Set(colName, colValue)
+        }
+        do list.%Push(row)
+    }
+    
+    set result = {
+        "children": (list)
+    }
+    
+    do result.%ToJSON(.stream)
 
 	return $$$OK
 }
@@ -782,3 +800,4 @@ ClassMethod UpdateWidget(widgetToUpdate As %DeepSee.Dashboard.Widget, data As %Z
 }
 
 }
+
